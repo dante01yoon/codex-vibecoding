@@ -1,3 +1,7 @@
 DS_Store
 racing-game/node_modules
 racing-game/dist
+session-manager/node_modules
+session-manager/dist
+session-manager/dist-electron
+session-manager/release
