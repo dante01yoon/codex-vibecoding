@@ -5,7 +5,6 @@ if (registrationForm && feedback) {
   registrationForm.addEventListener("submit", (event) => {
     event.preventDefault();
     feedback.textContent =
-      "기본 등록 흐름이 연결되었습니다. 다음 단계에서 실제 제출 API를 연동하면 됩니다.";
-    registrationForm.reset();
+      "입력 내용을 확인했습니다. 공식 접수 연결 전에는 브라우저에서만 표시됩니다.";
   });
 }
