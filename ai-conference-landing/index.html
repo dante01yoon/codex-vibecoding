@@ -24,18 +24,28 @@
         <div class="shell site-header__inner">
           <a class="site-header__brand" href="#top">AIIC 2026</a>
           <nav class="site-header__nav" aria-label="주요 섹션">
-            <a href="#overview">Overview</a>
-            <a href="#speakers">Speakers</a>
-            <a href="#registration">Register</a>
+            <a class="site-header__link" href="#overview">Overview</a>
+            <a class="site-header__link" href="#speakers">Speakers</a>
+            <a class="site-header__link" href="#registration">Register</a>
           </nav>
         </div>
       </header>
 
       <main class="page__main" id="main-content">
-        <section class="hero shell" id="top" aria-labelledby="hero-title">
-          <div class="hero__backdrop" aria-hidden="true"></div>
-          <div class="hero__layout">
-            <div class="hero__content glass-panel">
+        <section class="hero" id="top" aria-labelledby="hero-title">
+          <picture class="hero__media" aria-hidden="true">
+            <img
+              src="./assets/ai-conference-stage.png"
+              alt=""
+              width="1200"
+              height="750"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </picture>
+          <div class="hero__overlay" aria-hidden="true"></div>
+          <div class="shell hero__inner">
+            <div class="hero__content">
               <p class="hero__kicker">Global AI Conference 2026</p>
               <h1 class="hero__title" id="hero-title">
                 2026 AI Innovators Conference
@@ -63,7 +73,7 @@
               </div>
             </div>
 
-            <aside class="hero__panel glass-panel" aria-label="행사 하이라이트">
+            <aside class="hero__panel" aria-label="행사 하이라이트">
               <ul class="highlight-list">
                 <li class="highlight-list__item">
                   <p class="highlight-list__label">Theme</p>
@@ -80,7 +90,7 @@
                 <li class="highlight-list__item">
                   <p class="highlight-list__label">Goal</p>
                   <p class="highlight-list__text">
-                    Early-bird registration and high-intent attendee conversion
+                    Practical insight for teams shipping agentic products
                   </p>
                 </li>
               </ul>
@@ -114,16 +124,22 @@
             <article class="info-card glass-panel">
               <h3 class="info-card__title">행사 개요</h3>
               <ul class="detail-list">
-                <li>행사명: 2026 AI Innovators Conference</li>
-                <li>일시: 2026년 11월 12일(목) ~ 11월 14일(토)</li>
-                <li>장소: 서울 코엑스 그랜드 볼룸 및 온라인 동시 생중계</li>
+                <li class="detail-list__item">
+                  행사명: 2026 AI Innovators Conference
+                </li>
+                <li class="detail-list__item">
+                  일시: 2026년 11월 12일(목) ~ 11월 14일(토)
+                </li>
+                <li class="detail-list__item">
+                  장소: 서울 코엑스 그랜드 볼룸 및 온라인 동시 생중계
+                </li>
               </ul>
             </article>
             <article class="info-card glass-panel">
               <h3 class="info-card__title">핵심 목표</h3>
               <p class="info-card__text">
-                랜딩 페이지에서 행사 핵심 정보를 빠르게 전달하고, 얼리버드 티켓
-                사전 등록으로 자연스럽게 이어지도록 설계합니다.
+                세션 선택, 현장 네트워킹, 온라인 참여까지 이어지는 참가 여정을
+                한눈에 파악할 수 있도록 돕습니다.
               </p>
             </article>
           </div>
@@ -208,32 +224,39 @@
           <div class="section-heading">
             <p class="section-heading__kicker">Reserve Your Seat</p>
             <h2 class="section-heading__title" id="registration-title">
-              얼리버드 등록을 위한 기본 신청 폼
+              얼리버드 등록을 위한 빠른 신청
             </h2>
             <p class="section-heading__summary">
-              핵심 정보만 빠르게 입력하도록 구성한 폼이라 추후 CRM, 결제, 메일링
-              자동화와도 쉽게 연결할 수 있습니다.
+              현장 체크인과 온라인 참가 안내에 필요한 정보만 간단히 남기고,
+              얼리버드 혜택을 먼저 받아보세요.
             </p>
           </div>
           <div class="registration">
             <article class="registration__summary glass-panel">
               <h3 class="registration__title">등록 정보</h3>
               <p class="registration__text">
-                필수 정보만 빠르게 입력할 수 있도록 구성한 기본 폼입니다. 실제
-                운영 시 CRM, 메일링 자동화, 결제 또는 티켓 시스템과 연결해
-                확장할 수 있습니다.
+                이름, 이메일, 소속만으로 먼저 등록 의향을 남기고, 프로필 사진과
+                미디어 동의는 현장 배지와 네트워킹 안내를 원하는 경우에만
+                추가하세요.
               </p>
               <ul class="detail-list">
-                <li>Full Name</li>
-                <li>Email Address</li>
-                <li>Company</li>
-                <li>Job Title</li>
+                <li class="detail-list__item">Full Name</li>
+                <li class="detail-list__item">Email Address</li>
+                <li class="detail-list__item">Company</li>
+                <li class="detail-list__item">Job Title</li>
+                <li class="detail-list__item">Photo Upload (Optional)</li>
+                <li class="detail-list__item">
+                  Photo &amp; Media Consent (Optional)
+                </li>
               </ul>
             </article>
             <form class="registration__form glass-panel" id="registration-form">
               <div class="form-field">
-                <label for="full-name">Full Name</label>
+                <label class="form-field__label" for="full-name">
+                  Full Name
+                </label>
                 <input
+                  class="form-field__input"
                   id="full-name"
                   name="fullName"
                   type="text"
@@ -243,8 +266,11 @@
               </div>
 
               <div class="form-field">
-                <label for="email">Email Address</label>
+                <label class="form-field__label" for="email">
+                  Email Address
+                </label>
                 <input
+                  class="form-field__input"
                   id="email"
                   name="email"
                   type="email"
@@ -254,8 +280,9 @@
               </div>
 
               <div class="form-field">
-                <label for="company">Company</label>
+                <label class="form-field__label" for="company">Company</label>
                 <input
+                  class="form-field__input"
                   id="company"
                   name="company"
                   type="text"
@@ -265,8 +292,11 @@
               </div>
 
               <div class="form-field">
-                <label for="job-title">Job Title</label>
+                <label class="form-field__label" for="job-title">
+                  Job Title
+                </label>
                 <input
+                  class="form-field__input"
                   id="job-title"
                   name="jobTitle"
                   type="text"
@@ -275,11 +305,41 @@
                 />
               </div>
 
+              <div class="form-field form-field--file">
+                <label class="form-field__label" for="profile-photo">
+                  Photo Upload
+                </label>
+                <input
+                  class="form-field__input"
+                  id="profile-photo"
+                  name="profilePhoto"
+                  type="file"
+                  accept="image/png, image/jpeg, image/webp"
+                  aria-describedby="profile-photo-hint"
+                />
+                <p class="form-field__hint" id="profile-photo-hint">
+                  선택 사항입니다. PNG, JPG, WEBP 형식의 프로필 사진을 업로드할
+                  수 있습니다.
+                </p>
+              </div>
+
+              <div class="form-field form-field--checkbox">
+                <input
+                  class="form-field__input form-field__input--checkbox"
+                  id="photo-consent"
+                  name="photoConsent"
+                  type="checkbox"
+                />
+                <label class="form-field__label" for="photo-consent">
+                  행사 사진 촬영 및 마케팅 활용 안내를 받겠습니다. (선택)
+                </label>
+              </div>
+
               <button
                 class="button button--primary button--block"
                 type="submit"
               >
-                등록 완료
+                등록 정보 확인
               </button>
               <p
                 class="registration__feedback"
@@ -296,17 +356,10 @@
           © 2026 AI Innovators Conference. All rights reserved.
         </p>
         <div class="site-footer__links" aria-label="소셜 및 정책 링크">
-          <a href="https://twitter.com" target="_blank" rel="noreferrer"
-            >Twitter</a
-          >
-          <a href="https://www.linkedin.com" target="_blank" rel="noreferrer"
-            >LinkedIn</a
-          >
-          <a href="https://github.com" target="_blank" rel="noreferrer"
-            >GitHub</a
-          >
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
+          <a class="site-footer__link" href="#overview">Overview</a>
+          <a class="site-footer__link" href="#speakers">Speakers</a>
+          <a class="site-footer__link" href="#registration">Register</a>
+          <a class="site-footer__link" href="#top">Back to top</a>
         </div>
       </footer>
     </div>
