@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="2026 AI Innovators Conference 404 페이지. 길을 잃은 동안 짧은 Snake 게임을 플레이해보세요."
+    />
+    <title>404 | 2026 AI Innovators Conference</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <a class="skip-link" href="#main-content">본문으로 바로가기</a>
+
+      <header class="site-header">
+        <div class="shell site-header__inner">
+          <a class="site-header__brand" href="./index.html">AIIC 2026</a>
+          <nav class="site-header__nav" aria-label="주요 섹션">
+            <a class="site-header__link" href="./index.html#overview">Overview</a>
+            <a class="site-header__link" href="./index.html#speakers">Speakers</a>
+            <a class="site-header__link" href="./index.html#registration">
+              Register
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page__main" id="main-content">
+        <section class="not-found shell" aria-labelledby="not-found-title">
+          <div class="not-found__content">
+            <p class="not-found__eyebrow">404 Signal Lost</p>
+            <h1 class="not-found__title" id="not-found-title">
+              이 세션은 아직 열리지 않았습니다
+            </h1>
+            <p class="not-found__summary">
+              찾으신 페이지는 컨퍼런스 맵에 없지만, 잠깐 대기하는 동안 작은
+              Snake 챌린지를 준비했습니다.
+            </p>
+            <div class="not-found__actions" aria-label="페이지 이동">
+              <a class="button button--primary" href="./index.html">
+                홈으로 돌아가기
+              </a>
+              <a class="button button--secondary" href="./index.html#registration">
+                등록 섹션으로 이동
+              </a>
+            </div>
+          </div>
+
+          <section
+            class="snake-game glass-panel"
+            aria-labelledby="snake-game-title"
+          >
+            <div class="snake-game__header">
+              <div>
+                <p class="snake-game__label">Mini Game</p>
+                <h2 class="snake-game__title" id="snake-game-title">
+                  Snake Break
+                </h2>
+              </div>
+              <div class="snake-game__scores" aria-label="게임 점수">
+                <p class="snake-game__score">
+                  <span class="snake-game__score-label">Score</span>
+                  <span class="snake-game__score-value" data-score>0</span>
+                </p>
+                <p class="snake-game__score">
+                  <span class="snake-game__score-label">Best</span>
+                  <span class="snake-game__score-value" data-best-score>0</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="snake-game__board-wrap">
+              <canvas
+                class="snake-game__canvas"
+                width="384"
+                height="384"
+                role="img"
+                aria-label="Snake 게임 보드"
+                data-snake-canvas
+              >
+                이 브라우저에서는 게임 보드를 표시할 수 없습니다.
+              </canvas>
+            </div>
+
+            <div class="snake-game__status-row">
+              <p class="snake-game__status" aria-live="polite" data-game-status>
+                방향을 정하면 게임이 시작됩니다.
+              </p>
+              <button
+                class="button button--secondary snake-game__restart"
+                type="button"
+                data-game-restart
+              >
+                게임 다시 시작
+              </button>
+            </div>
+
+            <div class="snake-game__controls" aria-label="터치 방향 조작">
+              <button
+                class="snake-game__control snake-game__control--up"
+                type="button"
+                aria-label="위로 이동"
+                data-direction="up"
+              >
+                ↑
+              </button>
+              <button
+                class="snake-game__control snake-game__control--left"
+                type="button"
+                aria-label="왼쪽으로 이동"
+                data-direction="left"
+              >
+                ←
+              </button>
+              <button
+                class="snake-game__control snake-game__control--right"
+                type="button"
+                aria-label="오른쪽으로 이동"
+                data-direction="right"
+              >
+                →
+              </button>
+              <button
+                class="snake-game__control snake-game__control--down"
+                type="button"
+                aria-label="아래로 이동"
+                data-direction="down"
+              >
+                ↓
+              </button>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="site-footer shell">
+        <p class="site-footer__copy">
+          © 2026 AI Innovators Conference. All rights reserved.
+        </p>
+        <div class="site-footer__links" aria-label="소셜 및 정책 링크">
+          <a class="site-footer__link" href="./index.html#overview">Overview</a>
+          <a class="site-footer__link" href="./index.html#speakers">Speakers</a>
+          <a class="site-footer__link" href="./index.html#registration">
+            Register
+          </a>
+          <a class="site-footer__link" href="./index.html">Home</a>
+        </div>
+      </footer>
+    </div>
+
+    <script src="./not-found-game.js"></script>
+  </body>
+</html>
