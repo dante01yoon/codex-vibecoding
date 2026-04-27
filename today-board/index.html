@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>오늘의 집중 보드</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="app" aria-labelledby="app-title">
+      <header class="app__header">
+        <p class="app__date" id="today-date">오늘</p>
+        <h1 class="app__title" id="app-title">오늘의 집중 보드</h1>
+        <p class="app__intro">오늘 가장 중요한 한 가지와 작은 할 일들을 차분히 정리해요.</p>
+      </header>
+
+      <section class="panel" aria-labelledby="focus-title">
+        <div class="panel__heading">
+          <h2 class="panel__title" id="focus-title">오늘의 집중</h2>
+          <span class="panel__hint">한 가지만 적어도 충분해요</span>
+        </div>
+        <label class="visually-hidden" for="focus-input">오늘의 집중 목표</label>
+        <textarea
+          class="focus-input"
+          id="focus-input"
+          rows="3"
+          maxlength="120"
+          placeholder="예: 오전에 강의 초안 정리하기"
+        ></textarea>
+      </section>
+
+      <section class="panel" aria-labelledby="tasks-title">
+        <div class="panel__heading">
+          <h2 class="panel__title" id="tasks-title">오늘 할 일</h2>
+          <span class="panel__hint" id="task-count">아직 할 일이 없어요</span>
+        </div>
+
+        <form class="task-form" id="task-form">
+          <label class="visually-hidden" for="task-input">새 할 일</label>
+          <input
+            class="task-form__input"
+            id="task-input"
+            type="text"
+            maxlength="80"
+            placeholder="작은 할 일을 입력하세요"
+            autocomplete="off"
+          />
+          <button class="task-form__button" type="submit">추가</button>
+        </form>
+
+        <p class="empty-state" id="empty-state">
+          아직 등록된 할 일이 없어요. 오늘 마무리하고 싶은 작은 일부터 적어보세요.
+        </p>
+        <ul class="task-list" id="task-list" aria-label="오늘 할 일 목록"></ul>
+      </section>
+    </main>
+  </body>
+</html>
