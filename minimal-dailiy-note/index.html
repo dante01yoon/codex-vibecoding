@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>오늘의 작은 일기</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="intro__eyebrow">Minimal Daily Note</p>
+        <h1 id="page-title" class="intro__title">오늘의 작은 일기</h1>
+        <p class="intro__copy">하루에 남기고 싶은 마음을 짧게 적어보세요.</p>
+      </section>
+
+      <section class="writer" aria-labelledby="writer-title">
+        <h2 id="writer-title" class="section-title">새 일기</h2>
+
+        <form class="diary-form" id="diary-form">
+          <div class="form-row">
+            <label class="field-label" for="entry-date">날짜</label>
+            <input class="date-input" type="date" id="entry-date" name="entry-date" />
+          </div>
+
+          <fieldset class="mood-field">
+            <legend class="field-label">오늘의 기분</legend>
+            <div class="mood-options" id="mood-options">
+              <label class="mood-option">
+                <input type="radio" name="mood" value="좋음" />
+                <span class="mood-option__label mood-option__label--good">좋음</span>
+              </label>
+              <label class="mood-option">
+                <input type="radio" name="mood" value="보통" checked />
+                <span class="mood-option__label mood-option__label--normal">보통</span>
+              </label>
+              <label class="mood-option">
+                <input type="radio" name="mood" value="피곤" />
+                <span class="mood-option__label mood-option__label--tired">피곤</span>
+              </label>
+              <label class="mood-option">
+                <input type="radio" name="mood" value="감사" />
+                <span class="mood-option__label mood-option__label--thankful">감사</span>
+              </label>
+              <label class="mood-option">
+                <input type="radio" name="mood" value="흐림" />
+                <span class="mood-option__label mood-option__label--cloudy">흐림</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-row">
+            <label class="field-label" for="entry-content">내용</label>
+            <textarea
+              class="entry-textarea"
+              id="entry-content"
+              name="entry-content"
+              rows="7"
+              placeholder="오늘 마음에 남은 장면을 적어보세요."
+            ></textarea>
+          </div>
+
+          <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+
+          <button class="save-button" type="submit">저장하기</button>
+        </form>
+      </section>
+
+      <section class="entries" aria-labelledby="entries-title">
+        <div class="entries__header">
+          <h2 id="entries-title" class="section-title">저장한 일기</h2>
+          <span class="entry-count" id="entry-count">0개</span>
+        </div>
+
+        <div class="empty-state" id="empty-state">
+          <p class="empty-state__title">아직 저장된 일기가 없어요.</p>
+          <p class="empty-state__copy">오늘의 첫 문장을 천천히 남겨보세요.</p>
+        </div>
+
+        <ul class="entry-list" id="entry-list" aria-label="저장한 일기 목록"></ul>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
