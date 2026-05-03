@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Figma Calendar</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260503" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="calendar-workspace" aria-labelledby="calendar-title">
+        <div class="workspace-header">
+          <div>
+            <p class="workspace-kicker">Figma Calendar</p>
+            <h1 id="calendar-title">Calendar</h1>
+          </div>
+
+          <p class="workspace-status">Private demo</p>
+        </div>
+
+        <div class="calendar-stage">
+          <aside class="calendar-sidebar" aria-label="Calendar" data-source-node="1:901">
+            <header class="month-header">
+              <div class="month-header__row">
+                <button
+                  class="month-nav-button"
+                  id="previous-month-button"
+                  type="button"
+                  aria-label="Previous month"
+                >
+                  <span aria-hidden="true">&lt;</span>
+                </button>
+
+                <h2 id="month-title">January 2026</h2>
+
+                <button
+                  class="month-nav-button"
+                  id="next-month-button"
+                  type="button"
+                  aria-label="Next month"
+                >
+                  <span aria-hidden="true">&gt;</span>
+                </button>
+              </div>
+              <p class="selected-date-label" id="selected-date-label">January 2</p>
+            </header>
+
+            <div class="mini-calendar" id="mini-calendar" aria-label="January"></div>
+
+            <div class="status-banner" id="status-banner" role="status" aria-live="polite" hidden></div>
+
+            <section class="captcha-panel" id="captcha-panel" aria-labelledby="captcha-title" hidden>
+              <h3 id="captcha-title">Security check</h3>
+              <p id="captcha-help">Complete the check to connect Supabase.</p>
+              <div class="captcha-widget" id="captcha-widget"></div>
+            </section>
+
+            <div class="agenda-panel" id="agenda-panel" aria-live="polite"></div>
+
+            <form class="event-form" id="event-form" novalidate>
+              <h3>Add event</h3>
+
+              <label class="form-field" for="event-title">
+                <span>Title</span>
+                <input
+                  id="event-title"
+                  name="title"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                  required
+                />
+              </label>
+
+              <div class="form-grid">
+                <label class="form-field" for="event-start-time">
+                  <span>Time</span>
+                  <input id="event-start-time" name="startTime" type="time" />
+                </label>
+
+                <label class="form-field" for="event-category">
+                  <span>Category</span>
+                  <select id="event-category" name="categoryId"></select>
+                </label>
+              </div>
+
+              <button class="save-button" id="save-event-button" type="submit">Save</button>
+            </form>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+    <script>
+      window.FIGMA_CALENDAR_SUPABASE_CONFIG_READY = fetch("./supabase-config.js", {
+        cache: "no-store",
+      })
+        .then((response) => {
+          if (!response.ok) {
+            return "";
+          }
+
+          return response.text();
+        })
+        .then((source) => {
+          if (!source.trim()) {
+            return;
+          }
+
+          const configScript = document.createElement("script");
+          configScript.textContent = source;
+          document.head.append(configScript);
+        })
+        .catch(() => {});
+    </script>
+    <script src="./script.js?v=20260503"></script>
+  </body>
+</html>
