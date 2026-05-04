@@ -1,0 +1,10 @@
+{
+  "name": "figma-calendar",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-deploy.mjs",
+    "check": "node --check script.js && node --check scripts/build-deploy.mjs"
+  }
+}
