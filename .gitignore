@@ -1,4 +1,5 @@
 DS_Store
+.playwright-mcp/
 racing-game/node_modules
 racing-game/dist
 session-manager/node_modules
@@ -7,3 +8,5 @@ session-manager/dist-electron
 session-manager/release
 figma-calendar/supabase-config.js
 figma-calendar/verification-*.png
+stock-alarm/node_modules
+stock-alarm/dist

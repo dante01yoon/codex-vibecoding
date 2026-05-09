@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-app: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-muted: #f1f5f9;
+  --color-border-default: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+  --color-brand-primary: #2563eb;
+  --color-brand-primary-hover: #1d4ed8;
+  --color-monitoring-active: #0f766e;
+  --color-alert-threshold: #d97706;
+  --color-alert-triggered: #dc2626;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
+  --color-sample: #7c3aed;
+  --color-chart-grid: #e2e8f0;
+  --color-chart-crosshair: #94a3b8;
+  --font-sans: Inter, "Noto Sans KR", system-ui, sans-serif;
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+:root {
+  color: #0f172a;
+  background: #f8fafc;
+  font-family: Inter, "Noto Sans KR", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus-ring:focus-visible {
+  outline-color: #2563eb;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
