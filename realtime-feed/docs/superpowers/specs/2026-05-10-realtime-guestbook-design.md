@@ -1,79 +1,186 @@
-# Realtime Guestbook Design
+# 실시간 방명록 PRD
 
-Date: 2026-05-10
-Project: `realtime-feed`
+날짜: 2026-05-10
+프로젝트: `realtime-feed`
+문서 상태: 설계 문서를 PRD 형식으로 보강
 
-## Summary
+## 1. Executive Summary
 
-Build a small deployable Korean realtime guestbook with React, Vite, Vercel, and Supabase. Visitors should be able to open the app, get an invisible Supabase anonymous session, write a guestbook post, optionally attach one uploaded image or one simple canvas drawing, and see new posts arrive live in the feed.
+### Problem Statement
 
-The first version favors a focused community feed over a large social platform. Posts are realtime at the main feed level. Comments are realtime only when a post is expanded, which keeps the first implementation understandable and avoids subscribing to every comment thread at once.
+행사, 수업, 소규모 커뮤니티 페이지에서 방문자가 가볍게 메시지와 이미지를 남기고 서로의 반응을 바로 확인할 수 있는 작은 실시간 방명록이 필요하다. 기존 정적 방명록은 새로고침 없이는 새 글을 확인하기 어렵고, 로그인 요구가 있으면 참여 장벽이 높아진다.
 
-## Confirmed Product Decisions
+### Proposed Solution
 
-- Deployment target: Vercel for the frontend and Supabase for auth, database, realtime, and storage.
-- UI language: Korean.
-- Layout: split write-and-read layout on desktop; stacked composer-first layout on mobile.
-- Identity: Supabase anonymous auth. Users do not see a login screen.
-- Post fields: name, message, avatar color, mood/emoji, optional attachment.
-- Attachment scope: optional, at most one per post; either one uploaded image or one canvas drawing.
-- Canvas scope: simple drawing only, with a small color palette, erase, and clear.
-- Feed behavior: newest-first infinite feed. New posts appear at the top in realtime.
-- Comments: supported in the first version. Each comment has text plus mood/emoji.
-- Delete behavior: only the anonymous session that created a post or comment can delete it.
-- Admin/moderation UI: out of scope for the first version.
+React, Vite, Vercel, Supabase를 사용해 배포 가능한 한국어 실시간 방명록을 만든다. 방문자는 화면에 드러나지 않는 Supabase 익명 세션으로 글을 작성하고, 선택적으로 업로드 이미지 1개 또는 간단한 캔버스 그림 1개를 첨부하며, 새 게시글과 펼쳐진 댓글을 실시간으로 확인한다.
 
-## Goals
+첫 버전은 큰 소셜 플랫폼이 아니라 집중된 작은 커뮤니티 피드를 목표로 한다. 게시글은 메인 피드에서 실시간으로 반영하고, 댓글은 게시글을 펼쳤을 때만 실시간으로 구독해 구현 복잡도와 구독 비용을 줄인다.
 
-- Let a visitor create a guestbook post without visible sign-up friction.
-- Make live posting obvious by showing newly created posts in another browser without refresh.
-- Support lightweight media expression through image upload or canvas drawing.
-- Keep the codebase teachable: UI components should not contain raw Supabase query details.
-- Keep the production surface small enough to deploy and verify quickly.
+### Success Criteria
 
-## Non-Goals
+- 브라우저 2개에서 테스트할 때 새 게시글이 다른 브라우저에 새로고침 없이 3초 이내 표시된다.
+- 이미지 업로드 게시글, 캔버스 그림 게시글, 텍스트 전용 게시글이 각각 정상 등록되고 피드에 표시된다.
+- 익명 세션을 가진 작성자 브라우저에서만 자신의 게시글/댓글 삭제 버튼이 보이고, 다른 브라우저에서는 보이지 않는다.
+- 첫 배포 전 수동 체크리스트의 핵심 흐름 10개 중 10개가 통과한다.
+- 모바일 너비 390px와 데스크톱 너비 1280px에서 주요 입력/버튼/카드 텍스트가 부모 요소 밖으로 넘치지 않는다.
 
-- Full user accounts, profiles, password login, or social login.
-- Admin dashboard, report queue, or global moderation workflow.
-- Multiple attachments per post.
-- Rich canvas features such as layers, stickers, undo stacks, or text tools.
-- Full-text search, hashtags, notifications, or nested comment threads.
+## 2. User Experience & Functionality
 
-## User Experience
+### User Personas
 
-The first screen is the guestbook itself, not a marketing landing page.
+- **방문자**: 행사, 수업, 데모 페이지에 접속해 짧은 응원이나 후기를 남기는 사용자. 로그인 없이 빠르게 참여하고 싶다.
+- **작성자**: 자신의 글이나 댓글을 남긴 뒤 같은 브라우저에서 필요하면 삭제하고 싶다.
+- **운영자/제작자**: Vercel과 Supabase에 배포 가능한 작은 앱을 빠르게 만들고, 실시간 기능을 설명 가능한 구조로 유지하고 싶다.
+- **학습자/개발자**: React, Supabase Auth, Realtime, Storage, RLS가 함께 작동하는 실제 예제를 이해하고 싶다.
 
-Desktop layout uses two main regions:
+### User Stories
 
-- Left composer panel: name, mood/emoji, avatar color picker, message input, attachment controls, preview, and submit button.
-- Right feed panel: live status, newest-first post list, load-more control, expanded comment areas, and delete controls for owned content.
+- **Story 1**: 방문자로서, 로그인 화면 없이 방명록 글을 작성하고 싶다. 그래야 참여 장벽 없이 바로 메시지를 남길 수 있다.
+- **Story 2**: 방문자로서, 이미지 업로드 또는 직접 그린 그림을 글에 선택적으로 첨부하고 싶다. 그래야 텍스트보다 풍부하게 분위기를 표현할 수 있다.
+- **Story 3**: 방문자로서, 다른 사람이 남긴 새 글을 새로고침 없이 보고 싶다. 그래야 방명록이 살아 있는 커뮤니티 피드처럼 느껴진다.
+- **Story 4**: 방문자로서, 게시글을 펼쳐 댓글을 남기고 새 댓글을 실시간으로 보고 싶다. 그래야 짧은 대화가 가능하다.
+- **Story 5**: 작성자로서, 내가 쓴 게시글이나 댓글만 삭제하고 싶다. 그래야 실수로 남긴 내용을 직접 정리할 수 있다.
+- **Story 6**: 제작자로서, Supabase 호출과 UI 컴포넌트가 분리된 구조를 원한다. 그래야 인증, RLS, Storage 정책이 바뀌어도 수정 범위가 작다.
 
-Mobile layout stacks the composer above the feed. The composer should remain compact after successful submission so users can continue reading without a large fixed panel blocking the feed.
+### Acceptance Criteria
 
-Post cards show avatar color, name, mood/emoji, relative timestamp, message, optional media preview, comment count, expand/collapse control, and a delete button only when the row belongs to the current anonymous user.
+#### Story 1: 로그인 없는 게시글 작성
 
-Attachment controls offer two mutually exclusive modes:
+- 앱 시작 시 Supabase 익명 세션을 생성하거나 기존 세션을 복원한다.
+- 사용자는 로그인 화면을 보지 않는다.
+- 이름, 메시지, 무드/이모지, 아바타 색상이 유효하면 게시글을 등록할 수 있다.
+- 이름은 2자 이상 24자 이하, 게시글 메시지는 1자 이상 500자 이하로 제한한다.
+- 등록 성공 후 작성기는 초기화되고 피드는 최신순 상태를 유지한다.
 
-- Upload image: choose a supported image file and preview it before posting.
-- Draw: open a simple canvas with pen color choices, erase, and clear.
+#### Story 2: 선택 첨부
 
-Comments appear when the user expands a post. The expanded area loads existing comments for that post, subscribes to new comments for that post, and includes a compact Korean comment composer with text and mood/emoji.
+- 게시글은 첨부 없이 등록할 수 있다.
+- 첨부가 있는 경우 업로드 이미지 1개 또는 캔버스 그림 1개 중 하나만 허용한다.
+- 이미지 첨부는 `image/jpeg`, `image/png`, `image/webp` 중 하나이며 4 MB 이하여야 한다.
+- 캔버스 그림은 지원되는 경우 `image/webp`, 대체 방식으로 `image/png`로 내보내며 2 MB 이하여야 한다.
+- 첨부 업로드 실패 시 게시글은 자동 등록되지 않고, 사용자는 재시도하거나 첨부를 제거할 수 있다.
 
-## Architecture
+#### Story 3: 실시간 게시글 피드
 
-Use React and Vite for the frontend. Vercel serves the static app. Supabase provides anonymous auth, Postgres tables, realtime subscriptions, and storage. There is no separate Node server in the first version.
+- 초기 로드는 `created_at desc` 순서로 최신 게시글 첫 페이지를 가져온다.
+- 새 게시글 insert 이벤트는 피드 맨 위에 반영된다.
+- 이미 표시된 게시글과 중복되는 realtime 이벤트는 중복 카드로 표시하지 않는다.
+- 오래된 게시글은 "더 보기"로 추가 로드할 수 있다.
+- 실시간 연결이 끊기면 기존 피드는 유지하고 재연결 상태 메시지를 보여준다.
 
-Keep code in three broad layers:
+#### Story 4: 실시간 댓글
 
-- UI layer: React components for layout, composer, canvas tool, attachment preview, feed, post card, and comment thread.
-- Client service layer: small modules for `auth`, `posts`, `comments`, and `attachments`. These modules own Supabase calls and normalize returned data for UI components.
-- Supabase backend: database tables, row level security policies, realtime publication configuration, and a storage bucket for post media.
+- 댓글은 게시글을 펼쳤을 때만 로드된다.
+- 펼쳐진 게시글은 해당 `post_id`의 댓글 변경을 구독한다.
+- 댓글 메시지는 1자 이상 240자 이하이며, 무드/이모지는 허용 목록 중 하나여야 한다.
+- 게시글을 접거나 컴포넌트가 언마운트되면 댓글 구독을 제거한다.
+- 다른 브라우저에서 작성한 댓글이 펼쳐진 스레드에 새로고침 없이 표시된다.
 
-The UI should call service functions and subscribe/unsubscribe through service helpers rather than importing Supabase query logic into every component. This keeps RLS changes, storage path changes, and query changes localized.
+#### Story 5: 본인 삭제
 
-## Data Model
+- 게시글과 댓글의 삭제 버튼은 `author_id = auth.uid()`일 때만 표시한다.
+- 삭제는 소프트 삭제 방식으로 처리하고, 앱은 `deleted_at is null`인 row만 조회한다.
+- 게시글 삭제 시 첨부 Storage 객체 제거를 함께 시도한다.
+- 권한 없는 삭제 시도에는 "내가 작성한 항목만 삭제할 수 있어요."를 보여준다.
+- 삭제 실패 시 "삭제하지 못했어요. 다시 시도해 주세요."를 보여준다.
 
-Use UUID primary keys and `auth.uid()` for ownership.
+#### Story 6: 설명 가능한 코드 구조
+
+- UI 컴포넌트는 Supabase 쿼리를 직접 흩뿌리지 않고 서비스 모듈을 호출한다.
+- 최소 서비스 모듈은 `auth`, `posts`, `comments`, `attachments`로 나눈다.
+- Supabase 응답은 UI가 쓰기 좋은 형태로 매핑한다.
+- 게시글/댓글/첨부 검증 로직은 테스트 가능한 함수로 분리한다.
+
+### Confirmed Product Decisions
+
+- 배포 대상: 프론트엔드는 Vercel, 인증/데이터베이스/실시간/스토리지는 Supabase를 사용한다.
+- UI 언어: 한국어.
+- 레이아웃: 데스크톱은 작성 영역과 피드 영역을 나누는 분할형 레이아웃, 모바일은 작성 영역이 위에 쌓이는 작성 우선 레이아웃.
+- 사용자 식별: Supabase 익명 인증을 사용한다. 사용자는 로그인 화면을 보지 않는다.
+- 게시글 필드: 이름, 메시지, 아바타 색상, 무드/이모지, 선택 첨부.
+- 첨부 범위: 게시글당 선택 첨부 1개까지 허용한다. 업로드 이미지 1개 또는 캔버스 그림 1개 중 하나만 가능하다.
+- 캔버스 범위: 작은 색상 팔레트, 지우기, 초기화만 제공하는 단순 그림 도구.
+- 피드 동작: 최신순 무한 피드. 새 게시글은 실시간으로 맨 위에 나타난다.
+- 댓글: 첫 버전에서 지원한다. 각 댓글은 텍스트와 무드/이모지를 가진다.
+- 삭제 동작: 게시글 또는 댓글을 만든 익명 세션만 해당 항목을 삭제할 수 있다.
+- 관리자/모더레이션 UI: 첫 버전 범위에서 제외한다.
+
+### User Flow
+
+1. 사용자가 앱을 연다.
+2. 앱이 Supabase 익명 세션을 생성하거나 복원한다.
+3. 앱이 최신 게시글 첫 페이지를 불러오고 게시글 realtime 구독을 시작한다.
+4. 사용자가 이름, 메시지, 무드/이모지, 아바타 색상을 입력한다.
+5. 사용자는 첨부 없이 글을 등록하거나, 이미지 업로드 또는 캔버스 그림 중 하나를 선택한다.
+6. 첨부가 있으면 먼저 Supabase Storage에 업로드한다.
+7. 앱이 게시글 row를 삽입하고 작성기를 초기화한다.
+8. 다른 브라우저는 realtime 이벤트로 새 게시글을 피드 상단에 표시한다.
+9. 사용자가 게시글을 펼치면 댓글을 로드하고 해당 게시글의 댓글 realtime 구독을 시작한다.
+10. 사용자는 댓글을 작성하거나, 자신이 작성한 게시글/댓글을 삭제한다.
+
+### Screen Requirements
+
+첫 화면은 마케팅 랜딩 페이지가 아니라 방명록 자체다.
+
+데스크톱 레이아웃은 두 개의 주요 영역을 사용한다.
+
+- 왼쪽 작성 패널: 이름, 무드/이모지, 아바타 색상 선택, 메시지 입력, 첨부 컨트롤, 미리보기, 등록 버튼.
+- 오른쪽 피드 패널: 실시간 상태, 최신순 게시글 목록, 더 보기 컨트롤, 펼쳐진 댓글 영역, 내가 작성한 콘텐츠의 삭제 컨트롤.
+
+모바일 레이아웃은 작성 패널을 피드 위에 쌓는다. 글 작성이 성공한 뒤에는 작성 패널을 작게 유지해, 큰 고정 패널이 피드 읽기를 방해하지 않게 한다.
+
+게시글 카드는 아바타 색상, 이름, 무드/이모지, 상대 시간, 메시지, 선택 미디어 미리보기, 댓글 수, 펼치기/접기 컨트롤, 현재 익명 사용자에게 속한 글일 때만 보이는 삭제 버튼을 보여준다.
+
+첨부 컨트롤은 서로 배타적인 두 가지 모드를 제공한다.
+
+- 이미지 업로드: 지원되는 이미지 파일을 선택하고 등록 전에 미리본다.
+- 그리기: 펜 색상 선택, 지우기, 초기화가 있는 단순 캔버스를 연다.
+
+댓글은 사용자가 게시글을 펼쳤을 때 나타난다. 펼쳐진 영역은 해당 게시글의 기존 댓글을 불러오고, 새 댓글을 구독하며, 텍스트와 무드/이모지를 입력하는 간결한 한국어 댓글 작성기를 포함한다.
+
+### Non-Goals
+
+- 일반 사용자 계정, 프로필, 비밀번호 로그인, 소셜 로그인.
+- 관리자 대시보드, 신고 큐, 전역 모더레이션 워크플로.
+- 게시글당 여러 첨부.
+- 레이어, 스티커, 실행취소 스택, 텍스트 도구 같은 풍부한 캔버스 기능.
+- 전문 검색, 해시태그, 알림, 중첩 댓글 스레드.
+
+## 3. AI System Requirements
+
+### Tool Requirements
+
+해당 없음. 첫 버전은 AI 생성, AI 추천, AI 분류 기능을 포함하지 않는다.
+
+### Evaluation Strategy
+
+해당 없음. 품질 평가는 AI 출력 품질이 아니라 실시간 동작, 작성/삭제 권한, 첨부 처리, 반응형 UI, Supabase 보안 정책 검증을 중심으로 수행한다.
+
+## 4. Technical Specifications
+
+### Architecture Overview
+
+프론트엔드는 React와 Vite를 사용한다. Vercel은 정적 앱을 서빙한다. Supabase는 익명 인증, Postgres 테이블, 실시간 구독, 스토리지를 제공한다. 첫 버전에서는 별도 Node 서버를 두지 않는다.
+
+코드는 크게 세 층으로 나눈다.
+
+- UI 계층: 레이아웃, 작성기, 캔버스 도구, 첨부 미리보기, 피드, 게시글 카드, 댓글 스레드를 담당하는 React 컴포넌트.
+- 클라이언트 서비스 계층: `auth`, `posts`, `comments`, `attachments` 같은 작은 모듈. 이 모듈들이 Supabase 호출을 담당하고, UI 컴포넌트가 쓰기 좋은 형태로 반환 데이터를 정규화한다.
+- Supabase 백엔드: 데이터베이스 테이블, Row Level Security 정책, Realtime publication 설정, 게시글 미디어용 Storage 버킷.
+
+UI는 각 컴포넌트에서 Supabase 쿼리 로직을 직접 가져오지 않고, 서비스 함수와 구독/해제 헬퍼를 호출해야 한다. 이렇게 하면 RLS 변경, 스토리지 경로 변경, 쿼리 변경의 영향 범위가 작아진다.
+
+### Integration Points
+
+- **Supabase Auth**: 익명 세션 생성과 복원. 소유권 판단은 `auth.uid()`를 기준으로 한다.
+- **Supabase Postgres**: `guestbook_posts`, `guestbook_comments` 테이블 저장소.
+- **Supabase Realtime**: 게시글 insert/delete/update 이벤트와 펼쳐진 게시글의 댓글 이벤트 구독.
+- **Supabase Storage**: 업로드 이미지와 캔버스 그림 저장.
+- **Vercel**: 정적 React/Vite 앱 배포와 공개 환경 변수 설정.
+
+### Data Model
+
+기본 키는 UUID를 사용하고, 소유권은 `auth.uid()`로 판단한다.
 
 `guestbook_posts`
 
@@ -84,7 +191,7 @@ Use UUID primary keys and `auth.uid()` for ownership.
 - `avatar_color text not null`
 - `mood text not null`
 - `attachment_path text`
-- `attachment_kind text` with allowed values `image` or `drawing`
+- `attachment_kind text`는 `image` 또는 `drawing`만 허용
 - `created_at timestamptz not null default now()`
 - `deleted_at timestamptz`
 
@@ -98,116 +205,121 @@ Use UUID primary keys and `auth.uid()` for ownership.
 - `created_at timestamptz not null default now()`
 - `deleted_at timestamptz`
 
-The app should query only rows where `deleted_at is null`. Soft deletion keeps realtime delete handling and auditability simple. Attachment cleanup can still attempt to remove the storage object when a post is deleted.
+앱은 `deleted_at is null`인 row만 조회해야 한다. 소프트 삭제를 사용하면 실시간 삭제 처리와 추적 가능성을 단순하게 유지할 수 있다. 게시글이 삭제될 때 연결된 Storage 객체 제거는 별도로 시도할 수 있다.
 
-For the first version, comments do not support media attachments or nested replies.
+첫 버전에서 댓글은 미디어 첨부나 중첩 답글을 지원하지 않는다.
 
-## Supabase Security
+### Realtime Behavior
 
-The frontend uses only public browser-safe Supabase environment variables. It must never expose a service role or secret key.
+메인 피드는 보이는 게시글을 대상으로 `guestbook_posts` insert 및 delete/update 이벤트를 구독한다. 새 insert는 이미 목록에 없는 경우 맨 위에 배치한다. delete 또는 소프트 삭제 이벤트는 해당 row를 보이는 목록에서 제거한다.
 
-Enable RLS on both tables.
+초기 로드는 `created_at desc` 순서로 첫 페이지를 가져온다. 오래된 게시글은 커서 또는 범위 기반 페이지네이션으로 "더 보기" 컨트롤을 통해 가져온다.
 
-Policy shape:
+댓글은 펼쳐진 게시글에만 범위를 둔다. 사용자가 게시글을 펼치면 앱은 해당 게시글의 댓글을 가져오고, 그 `post_id`에 대한 변경을 구독한다. 게시글을 접거나 컴포넌트가 언마운트되면 댓글 구독을 제거한다.
 
-- Anyone with an anonymous authenticated session can read non-deleted posts and comments.
-- Authenticated anonymous users can insert rows where `author_id = auth.uid()`.
-- Users can soft-delete only rows where `author_id = auth.uid()`.
-- Users cannot update other fields after creation in the first version.
+실시간 연결이 끊겼다가 다시 연결되면 최신 게시글 페이지와 펼쳐진 댓글 스레드를 다시 동기화해 누락 가능성을 줄인다.
 
-Storage should use one bucket for guestbook media. Object paths should include the user id and a generated file name, for example `posts/{user_id}/{uuid}.webp`. Storage policies should allow authenticated users to upload only under their own user-id prefix and allow public read for objects shown in the feed.
+### Security & Privacy
 
-Implementation should verify current Supabase docs and changelog before writing migrations or storage policies, because CLI commands and policy details can change.
+프론트엔드는 브라우저에 공개해도 안전한 Supabase 환경 변수만 사용한다. `service_role` 또는 시크릿 키를 절대 노출하지 않는다.
 
-## Realtime Behavior
+두 테이블 모두 RLS를 활성화한다.
 
-The main feed subscribes to `guestbook_posts` insert and delete/update events for visible posts. New inserts are placed at the top if they are not already present. Delete or soft-delete events remove the row from the visible list.
+정책 형태:
 
-Initial load fetches the first page ordered by `created_at desc`. Older posts are fetched with a cursor or range-based pagination through a "더 보기" control.
+- 익명 인증 세션이 있는 사용자는 삭제되지 않은 게시글과 댓글을 읽을 수 있다.
+- 인증된 익명 사용자는 `author_id = auth.uid()`인 row만 삽입할 수 있다.
+- 사용자는 `author_id = auth.uid()`인 row만 소프트 삭제할 수 있다.
+- 첫 버전에서는 생성 후 다른 필드를 수정할 수 없다.
 
-Comments are scoped to expanded posts. When a user expands a post, the app fetches that post's comments and subscribes to changes for that `post_id`. When the post is collapsed or unmounted, the comment subscription is removed.
+Storage는 방명록 미디어용 버킷 하나를 사용한다. 객체 경로에는 사용자 id와 생성된 파일명을 포함한다. 예: `posts/{user_id}/{uuid}.webp`. Storage 정책은 인증된 사용자가 자신의 사용자 id 접두 경로 아래에만 업로드할 수 있게 하고, 피드에 표시되는 객체는 공개 읽기를 허용해야 한다.
 
-If realtime reconnects after an interruption, the app should refresh the latest post page and any expanded comment threads to reduce missed updates.
+마이그레이션이나 Storage 정책을 작성하기 전에 현재 Supabase 문서와 변경 로그를 확인해야 한다. CLI 명령과 정책 세부사항은 변경될 수 있기 때문이다.
 
-## Write Flow
+### Validation Rules
 
-On app start:
+- 이름은 필수이며 2자 이상 24자 이하여야 한다.
+- 게시글 메시지는 필수이며 1자 이상 500자 이하여야 한다.
+- 댓글 메시지는 필수이며 1자 이상 240자 이하여야 한다.
+- 무드/이모지는 초기 허용 목록 중 하나여야 한다: happy, cheer, celebrate, idea, love.
+- 아바타 색상은 초기 팔레트 중 하나여야 한다: `#2563eb`, `#059669`, `#d97706`, `#dc2626`, `#7c3aed`, `#0f766e`.
+- 이미지 첨부는 `image/jpeg`, `image/png`, `image/webp` 중 하나여야 하며 4 MB 이하여야 한다.
+- 캔버스 그림은 지원되는 경우 `image/webp`로 내보내고, 대체 방식으로 `image/png`를 사용한다. 내보낸 뒤 2 MB 이하여야 한다.
 
-1. Create or restore a Supabase anonymous session.
-2. Load the newest post page.
-3. Start the posts realtime subscription.
+### Error Handling
 
-On post submit:
+짧은 한국어 메시지를 사용하고, 가능한 경우 사용자가 입력한 내용을 보존한다.
 
-1. Validate name, message, mood, avatar color, attachment type, and attachment size.
-2. If an attachment exists, upload it to Supabase Storage.
-3. Insert the post row with the uploaded attachment path, if any.
-4. Reset the composer after success.
-5. Let realtime insert events update other connected clients.
+- 익명 인증 실패: 작성을 비활성화하고 "방명록을 준비하지 못했어요. 잠시 후 다시 시도해 주세요."를 보여준다.
+- 피드 로드 실패: 피드 영역을 유지하고 재시도 버튼을 보여준다.
+- 업로드 실패: 게시글을 자동 생성하지 않는다. 사용자가 업로드를 다시 시도하거나 첨부를 제거하게 한다.
+- 잘못된 파일: 업로드 전에 파일 타입 또는 크기 안내를 보여준다.
+- 실시간 연결 끊김: 기존 게시글은 계속 보이게 두고, 작은 "실시간 연결을 다시 시도 중이에요." 상태를 보여준다.
+- 삭제 권한 실패: "내가 작성한 항목만 삭제할 수 있어요."를 보여준다.
+- 일반 삭제 실패: "삭제하지 못했어요. 다시 시도해 주세요."를 보여준다.
 
-On comment submit:
+### Testing Requirements
 
-1. Validate message and mood.
-2. Insert the comment row for the expanded post.
-3. Let the scoped comment subscription update the visible thread.
+자동화 테스트는 다음을 다룬다.
 
-On delete:
+- 게시글과 댓글에 대한 Supabase 응답 매핑.
+- 허용 타입, 거부 타입, 크기 제한에 대한 첨부 검증.
+- 가능한 경우 모의 canvas/blob 경로를 사용한 캔버스 내보내기 헬퍼 동작.
+- 초기 row와 realtime insert가 함께 들어오는 피드 병합 동작.
+- 내가 작성한 게시글/댓글과 다른 사람이 작성한 게시글/댓글의 삭제 버튼 노출 조건.
+- 댓글 펼침 상태와 범위가 지정된 댓글 로딩.
 
-1. Confirm the current row belongs to the anonymous session.
-2. Soft-delete the post or comment.
-3. If deleting a post with an attachment, attempt to remove the storage object.
-4. Show a retryable Korean error if the delete or storage cleanup fails.
+수동 배포 체크는 다음을 다룬다.
 
-## Error Handling
+- 배포된 Vercel URL을 브라우저 2개에서 연다.
+- 텍스트만 있는 게시글이 다른 브라우저에 새로고침 없이 나타난다.
+- 업로드 이미지 게시글이 다른 브라우저에 새로고침 없이 나타난다.
+- 캔버스 그림 게시글이 다른 브라우저에 새로고침 없이 나타난다.
+- 펼쳐진 게시글에 작성한 댓글이 다른 브라우저에 실시간으로 나타난다.
+- 작성자 브라우저에서는 자신의 게시글과 댓글을 삭제할 수 있다.
+- 작성자가 아닌 브라우저에서는 자신이 만들지 않은 콘텐츠의 삭제 컨트롤이 보이지 않는다.
+- 새로고침 후에도 원래 브라우저의 익명 세션과 소유권 컨트롤이 유지된다.
+- "더 보기"로 오래된 게시글을 불러온다.
+- 모바일 레이아웃이 깔끔하게 쌓이고, 텍스트가 컨트롤 밖으로 넘치지 않는다.
 
-Use short Korean messages and preserve user input when possible.
+출시 전에는 프로젝트에 정의된 로컬 빌드, 린트, 테스트 명령을 실행한다. 또한 Vercel 환경 변수와 Supabase RLS/Storage 정책이 배포 프로젝트에서 올바른지 확인한다.
 
-- Anonymous auth failure: disable writing and show "방명록을 준비하지 못했어요. 잠시 후 다시 시도해 주세요."
-- Feed load failure: keep the feed region visible with a retry button.
-- Upload failure: do not create the post automatically. Let the user retry upload or remove the attachment.
-- Invalid file: show type or size guidance before upload.
-- Realtime interruption: keep existing posts visible and show a small "실시간 연결을 다시 시도 중이에요." status.
-- Permission failure on delete: show "내가 작성한 항목만 삭제할 수 있어요."
-- General delete failure: show "삭제하지 못했어요. 다시 시도해 주세요."
+## 5. Risks & Roadmap
 
-## Validation Rules
+### Phased Rollout
 
-The first version should enforce these concrete limits in both UI and Supabase-facing code:
+#### MVP
 
-- Name is required and must be 2 to 24 characters.
-- Post message is required and must be 1 to 500 characters.
-- Comment message is required and must be 1 to 240 characters.
-- Mood/emoji must come from this initial set: happy, cheer, celebrate, idea, love.
-- Avatar color must come from this initial palette: `#2563eb`, `#059669`, `#d97706`, `#dc2626`, `#7c3aed`, `#0f766e`.
-- Image attachments must be `image/jpeg`, `image/png`, or `image/webp` and no larger than 4 MB.
-- Canvas drawings should be exported as `image/webp` when supported, with `image/png` as fallback, and no larger than 2 MB after export.
+- React/Vite 앱 스캐폴딩.
+- Supabase 익명 인증, 게시글/댓글 테이블, RLS, Storage 버킷 구성.
+- 데스크톱 분할형 레이아웃과 모바일 작성 우선 레이아웃.
+- 게시글 작성, 선택 첨부, 최신순 피드, 게시글 realtime 구독.
+- 게시글 펼침, 댓글 작성, 펼쳐진 댓글 realtime 구독.
+- 본인 게시글/댓글 삭제.
+- 핵심 자동화 테스트와 수동 배포 체크.
 
-## Testing Plan
+#### v1.1
 
-Automated tests should cover:
+- 관리자 삭제 또는 간단한 숨김 처리 워크플로.
+- 첨부 이미지 압축/리사이즈 개선.
+- 접근성 점검과 키보드 조작 보강.
+- 피드 빈 상태, 로딩 상태, 재연결 상태의 시각 품질 개선.
 
-- Supabase response mapping for posts and comments.
-- Attachment validation for allowed types, rejected types, and size limits.
-- Canvas export helper behavior with a mocked canvas/blob path where practical.
-- Feed merge behavior for initial rows plus realtime inserts.
-- Delete button visibility for owned versus unowned posts and comments.
-- Comment expansion state and scoped comment loading.
+#### v2.0
 
-Manual deployment checks should cover:
+- 선택적 사용자 프로필 또는 고정 닉네임.
+- 이모지 반응, 댓글 정렬/접기, 검색 또는 필터.
+- 모더레이션 큐와 신고 기능.
+- 행사/강의별 방명록 공간 분리.
 
-- Two browsers open to the deployed Vercel URL.
-- A text-only post appears in the other browser without refresh.
-- An uploaded-image post appears in the other browser without refresh.
-- A canvas-drawing post appears in the other browser without refresh.
-- An expanded post receives a realtime comment in the other browser.
-- The author browser can delete its own post and comment.
-- The non-author browser does not see delete controls for content it did not create.
-- Refresh preserves the anonymous session and ownership controls in the original browser.
-- Older posts load through "더 보기".
-- Mobile layout stacks cleanly and text does not overflow controls.
+### Technical Risks
 
-Before shipping, run the local build, lint, and test commands defined by the project. Also verify Vercel environment variables and Supabase RLS/storage policies against the deployed project.
+- **Supabase 정책 설정 오류**: RLS 또는 Storage 정책이 과하게 열리거나 너무 닫히면 데이터 노출 또는 기능 실패가 발생한다. 마이그레이션 전 현재 Supabase 문서와 변경 로그를 확인하고, 권한 케이스를 수동으로 검증한다.
+- **Realtime 누락 또는 중복 이벤트**: 연결 끊김, 재연결, 초기 로드와 insert 이벤트 경합으로 누락이나 중복이 생길 수 있다. reconnect 후 최신 페이지를 재동기화하고, 클라이언트에서 id 기준 중복 제거를 수행한다.
+- **첨부 업로드 실패와 고아 파일**: Storage 업로드 성공 후 DB insert가 실패하거나, 게시글 삭제 후 Storage 제거가 실패할 수 있다. 업로드 실패 시 게시글 생성을 막고, 삭제 실패는 재시도 가능 상태로 표시한다.
+- **익명 세션 소유권 오해**: 다른 브라우저나 시크릿 창에서는 같은 사용자가 아니라 다른 익명 세션이다. 삭제 권한은 같은 브라우저 세션 기준임을 UX에서 과하게 설명하지 않되, 동작은 일관되게 유지한다.
+- **첫 버전 범위 증가**: 댓글, 첨부, 캔버스, 실시간, 삭제가 모두 포함되어 MVP가 커질 수 있다. 관리자 UI, 여러 첨부, 고급 캔버스, 검색, 알림은 명시적으로 제외한다.
 
-## Implementation Boundary
+### Implementation Boundary
 
-The next step should be an implementation plan, not direct coding. The plan should start by scaffolding a minimal React/Vite app only if the project is still empty, then add Supabase configuration, schema/migrations, service modules, UI components, realtime subscriptions, tests, and deployment verification in small steps.
+다음 단계는 바로 코딩이 아니라 구현 계획 작성이다. 구현 계획은 프로젝트가 여전히 비어 있다면 최소 React/Vite 앱을 스캐폴딩하는 일부터 시작하고, 이후 Supabase 설정, 스키마/마이그레이션, 서비스 모듈, UI 컴포넌트, 실시간 구독, 테스트, 배포 검증을 작은 단계로 나누어 진행해야 한다.
