@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock Alert Memory Bank"
+  short_description: "Maintain stock-alarm project memory notes"
+  default_prompt: "Use $stock-alert-memory-bank to refresh and update the stock-alarm project memory bank before continuing work."

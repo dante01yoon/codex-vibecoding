@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { evaluateAlertRules } from "./lib/alertEvaluator.js";
+
 const STOCKS = [
   {
     symbol: "AAPL",
@@ -85,6 +87,8 @@ const STOCKS = [
   },
 ];
 
+const demoTimestamp = (minutesAgo) => new Date(Date.now() - minutesAgo * 60 * 1000).toISOString();
+
 const INITIAL_RULES = [
   {
     id: "rule-aapl-price",
@@ -94,7 +98,7 @@ const INITIAL_RULES = [
     thresholdValue: 190,
     cooldownMinutes: 15,
     enabled: true,
-    lastTriggeredAt: "12분 전",
+    lastTriggeredAt: demoTimestamp(12),
   },
   {
     id: "rule-aapl-percent",
@@ -104,7 +108,7 @@ const INITIAL_RULES = [
     thresholdValue: 0.5,
     cooldownMinutes: 30,
     enabled: true,
-    lastTriggeredAt: "방금",
+    lastTriggeredAt: demoTimestamp(1),
   },
   {
     id: "rule-samsung-price",
@@ -124,7 +128,7 @@ const INITIAL_ALERTS = [
     symbol: "AAPL",
     message: "AAPL 일일 등락률이 설정값 이상입니다.",
     triggeredValue: "+0.68%",
-    createdAt: "방금",
+    createdAt: demoTimestamp(1),
     acknowledged: false,
   },
   {
@@ -132,13 +136,21 @@ const INITIAL_ALERTS = [
     symbol: "005930",
     message: "005930 가격이 설정값 이하입니다.",
     triggeredValue: "82,200 KRW",
-    createdAt: "18분 전",
+    createdAt: demoTimestamp(18),
     acknowledged: true,
   },
 ];
 
 const MARKET_FILTERS = ["All", "US", "KR"];
 const RANGE_OPTIONS = ["1D", "1W", "1M", "6M", "1Y"];
+
+function getInitialNotificationState() {
+  if (typeof window === "undefined" || !("Notification" in window)) {
+    return "unsupported";
+  }
+
+  return window.Notification.permission === "default" ? "needed" : window.Notification.permission;
+}
 
 function App() {
   const [query, setQuery] = useState("");
@@ -148,7 +160,8 @@ function App() {
   const [rules, setRules] = useState(INITIAL_RULES);
   const [alerts, setAlerts] = useState(INITIAL_ALERTS);
   const [range, setRange] = useState("1M");
-  const [notificationState, setNotificationState] = useState("needed");
+  const [notificationState, setNotificationState] = useState(getInitialNotificationState);
+  const [lastEvaluation, setLastEvaluation] = useState("아직 평가 전");
   const [form, setForm] = useState({
     ruleType: "price",
     operator: "above",
@@ -183,6 +196,72 @@ function App() {
     if (!watchlist.includes(selectedStock.symbol)) {
       setWatchlist((items) => [...items, selectedStock.symbol]);
     }
+  }
+
+  async function handleNotificationRequest() {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      setNotificationState("unsupported");
+      return;
+    }
+
+    if (window.Notification.permission === "granted") {
+      setNotificationState("granted");
+      return;
+    }
+
+    const permission = await window.Notification.requestPermission();
+    setNotificationState(permission === "default" ? "needed" : permission);
+  }
+
+  function showBrowserNotifications(events) {
+    if (
+      notificationState !== "granted" ||
+      typeof window === "undefined" ||
+      !("Notification" in window)
+    ) {
+      return;
+    }
+
+    events.forEach((event) => {
+      try {
+        new window.Notification("Stock Alarm", {
+          body: `${event.message} (${event.triggeredValue})`,
+        });
+      } catch {
+        setNotificationState("needed");
+      }
+    });
+  }
+
+  function handleRunDemoEvaluation() {
+    const now = new Date();
+    const watchedRules = rules.filter((rule) => watchlist.includes(rule.symbol));
+    const { events, results } = evaluateAlertRules({
+      now,
+      quotes: STOCKS,
+      rules: watchedRules,
+    });
+    const triggeredRuleIds = new Set(events.map((event) => event.alertRuleId));
+    const cooldownCount = results.filter((result) => result.status === "cooldown").length;
+
+    if (events.length > 0) {
+      setAlerts((items) => [...events, ...items].slice(0, 8));
+      setRules((items) =>
+        items.map((rule) =>
+          triggeredRuleIds.has(rule.id) ? { ...rule, lastTriggeredAt: now.toISOString() } : rule,
+        ),
+      );
+      showBrowserNotifications(events);
+      setLastEvaluation(`${events.length}개 조건 충족 · ${formatRelativeTime(now.toISOString())}`);
+      return;
+    }
+
+    if (cooldownCount > 0) {
+      setLastEvaluation(`쿨다운 중 ${cooldownCount}개 · ${formatRelativeTime(now.toISOString())}`);
+      return;
+    }
+
+    setLastEvaluation(`새 알림 없음 · ${formatRelativeTime(now.toISOString())}`);
   }
 
   function handleRuleSubmit(event) {
@@ -236,10 +315,15 @@ function App() {
       <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-4 px-3 py-4 sm:px-4 lg:px-6 lg:py-6">
         <AppHeader
           notificationState={notificationState}
-          onNotificationClick={() => setNotificationState("granted")}
+          onNotificationClick={handleNotificationRequest}
+          onRefreshClick={handleRunDemoEvaluation}
         />
 
-        <StatusBar selectedStock={selectedStock} notificationState={notificationState} />
+        <StatusBar
+          lastEvaluation={lastEvaluation}
+          notificationState={notificationState}
+          selectedStock={selectedStock}
+        />
 
         <main className="grid gap-4 lg:grid-cols-[300px_minmax(0,1fr)_340px] xl:grid-cols-[320px_minmax(0,1fr)_360px]">
           <section className="order-2 lg:order-1">
@@ -291,7 +375,7 @@ function App() {
   );
 }
 
-function AppHeader({ notificationState, onNotificationClick }) {
+function AppHeader({ notificationState, onNotificationClick, onRefreshClick }) {
   return (
     <header className="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -311,12 +395,13 @@ function AppHeader({ notificationState, onNotificationClick }) {
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge tone="sample">Sample data</StatusBadge>
         <StatusBadge tone="warning">Market closed</StatusBadge>
-        <IconButton label="새로고침" title="새로고침">
+        <IconButton label="데모 알림 평가" title="데모 알림 평가" onClick={onRefreshClick}>
           <RefreshCw aria-hidden="true" size={18} />
         </IconButton>
         <IconButton
-          label={notificationState === "granted" ? "브라우저 알림 켜짐" : "브라우저 알림 켜기"}
-          title={notificationState === "granted" ? "브라우저 알림 켜짐" : "브라우저 알림 켜기"}
+          disabled={notificationState === "unsupported"}
+          label={notificationButtonLabel(notificationState)}
+          title={notificationButtonLabel(notificationState)}
           onClick={onNotificationClick}
         >
           {notificationState === "granted" ? (
@@ -333,11 +418,11 @@ function AppHeader({ notificationState, onNotificationClick }) {
   );
 }
 
-function StatusBar({ selectedStock, notificationState }) {
+function StatusBar({ lastEvaluation, notificationState, selectedStock }) {
   return (
     <section
       aria-label="데이터 상태"
-      className="grid gap-3 rounded-lg border border-border-default bg-bg-surface px-4 py-3 text-sm text-text-secondary md:grid-cols-3"
+      className="grid gap-3 rounded-lg border border-border-default bg-bg-surface px-4 py-3 text-sm text-text-secondary md:grid-cols-2 xl:grid-cols-4"
     >
       <InlineStatus
         icon={<ShieldAlert aria-hidden="true" size={17} />}
@@ -354,8 +439,14 @@ function StatusBar({ selectedStock, notificationState }) {
       <InlineStatus
         icon={<Bell aria-hidden="true" size={17} />}
         label="알림 권한"
-        value={notificationState === "granted" ? "브라우저 알림 켜짐" : "인앱 알림 우선"}
-        tone={notificationState === "granted" ? "active" : "info"}
+        value={notificationStatusLabel(notificationState)}
+        tone={notificationStatusTone(notificationState)}
+      />
+      <InlineStatus
+        icon={<RefreshCw aria-hidden="true" size={17} />}
+        label="데모 평가"
+        value={lastEvaluation}
+        tone="info"
       />
     </section>
   );
@@ -804,7 +895,7 @@ function AlertPanel({
                   <div>
                     <p className="text-sm font-semibold">{alert.message}</p>
                     <p className="tabular mt-1 text-xs text-text-muted">
-                      {alert.triggeredValue} · {alert.createdAt}
+                      {alert.triggeredValue} · {formatRelativeTime(alert.createdAt)}
                     </p>
                   </div>
                   {alert.acknowledged ? (
@@ -838,6 +929,7 @@ function RuleRow({ onToggle, rule, stock }) {
     rule.ruleType === "price"
       ? formatPrice(rule.thresholdValue, stock.currency)
       : `${rule.thresholdValue}%`;
+  const lastTriggeredLabel = formatRelativeTime(rule.lastTriggeredAt);
 
   return (
     <div className="rounded-lg border border-border-default bg-bg-surface px-3 py-3">
@@ -847,7 +939,7 @@ function RuleRow({ onToggle, rule, stock }) {
           <p className="tabular mt-1 text-sm text-text-secondary">{value}</p>
           <p className="mt-1 text-xs text-text-muted">
             쿨다운 {rule.cooldownMinutes}분
-            {rule.lastTriggeredAt ? ` · 마지막 충족 ${rule.lastTriggeredAt}` : ""}
+            {lastTriggeredLabel ? ` · 마지막 충족 ${lastTriggeredLabel}` : ""}
           </p>
         </div>
         <button
@@ -908,11 +1000,12 @@ function Select({ children, id, onChange, value }) {
   );
 }
 
-function IconButton({ children, label, onClick, title }) {
+function IconButton({ children, disabled = false, label, onClick, title }) {
   return (
     <button
       aria-label={label}
-      className="focus-ring inline-flex size-10 items-center justify-center rounded-md border border-border-default bg-bg-surface text-text-secondary transition hover:border-border-strong hover:bg-bg-surface-muted"
+      className="focus-ring inline-flex size-10 items-center justify-center rounded-md border border-border-default bg-bg-surface text-text-secondary transition hover:border-border-strong hover:bg-bg-surface-muted disabled:bg-bg-surface-muted disabled:text-text-subtle"
+      disabled={disabled}
       onClick={onClick}
       title={title}
       type="button"
@@ -997,6 +1090,67 @@ function formatCompact(value, currency) {
   return new Intl.NumberFormat(currency === "KRW" ? "ko-KR" : "en-US", {
     maximumFractionDigits: currency === "KRW" ? 0 : 2,
   }).format(value);
+}
+
+function formatRelativeTime(value, now = new Date()) {
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (!value || Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const diffMs = Math.max(0, now.getTime() - date.getTime());
+  const diffMinutes = Math.floor(diffMs / 60000);
+
+  if (diffMinutes < 1) {
+    return "방금";
+  }
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}분 전`;
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+
+  if (diffHours < 24) {
+    return `${diffHours}시간 전`;
+  }
+
+  return `${Math.floor(diffHours / 24)}일 전`;
+}
+
+function notificationButtonLabel(status) {
+  const labels = {
+    denied: "브라우저 알림 차단됨",
+    granted: "브라우저 알림 켜짐",
+    needed: "브라우저 알림 켜기",
+    unsupported: "브라우저 알림 미지원",
+  };
+
+  return labels[status] ?? labels.needed;
+}
+
+function notificationStatusLabel(status) {
+  const labels = {
+    denied: "브라우저 알림 차단 · 인앱 알림 활성",
+    granted: "브라우저 알림 켜짐",
+    needed: "인앱 알림 우선",
+    unsupported: "브라우저 알림 미지원",
+  };
+
+  return labels[status] ?? labels.needed;
+}
+
+function notificationStatusTone(status) {
+  if (status === "granted") {
+    return "active";
+  }
+
+  if (status === "denied" || status === "unsupported") {
+    return "warning";
+  }
+
+  return "info";
 }
 
 export default App;

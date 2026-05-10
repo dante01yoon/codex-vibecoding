@@ -15,6 +15,28 @@
 - `DESIGN.md`: UI 작업의 필수 기준입니다.
 - `docs/superpowers/specs/2026-05-07-stock-alarm-prd.md`: 제품 요구사항 기준입니다.
 - `docs/superpowers/specs/2026-05-06-stock-alarm-design.md`: 최초 승인된 제품/아키텍처 범위입니다.
+- `.memory-bank/project-brief.md`: 프로젝트 요약과 현재 학습 범위입니다.
+- `.memory-bank/active-context.md`: 최근 작업 상태와 다음 세션 시작 순서입니다.
+- `.memory-bank/progress.md`: `done`, `in progress`, `blocked`, `next` 기준 진행 상태입니다.
+- `.memory-bank/decision-log.md`: 오래 유지해야 하는 결정 기록입니다.
+- `.memory-bank/next-actions.md`: 바로 이어갈 수 있는 작은 작업 목록입니다.
+- `.memory-bank/verification-log.md`: 실행한 검증과 남은 확인입니다.
+
+## Memory Bank Rule
+
+이 프로젝트에서 새 세션을 시작하거나, 작업을 이어가거나, 작은 구현 작업을 준비하거나, 완료한 작업을 요약할 때는 `$stock-alert-memory-bank` 스킬을 사용합니다.
+
+스킬 위치:
+
+- `/Users/dante/Desktop/codex-vibecoding/.agents/skills/stock-alert-memory-bank/SKILL.md`
+
+메모리 뱅크 사용 규칙:
+
+- 작업 전에는 위 Required Reading 문서와 `.memory-bank/` 파일을 가능한 범위에서 읽습니다.
+- 구현 작업 전에는 `.memory-bank/tasks/` 아래에 작은 task card를 만들거나 기존 task card를 갱신합니다.
+- 작업 후에는 `active-context.md`, `progress.md`, `decision-log.md`, `next-actions.md`, `verification-log.md`, 관련 task card를 짧게 갱신합니다.
+- 메모리 노트는 입문자가 이어받기 쉽게 짧은 한국어로 유지합니다.
+- secret, API key, token, private account data, `.env` 내용은 메모리 뱅크에 저장하지 않습니다.
 
 ## UI Work Rule
 
