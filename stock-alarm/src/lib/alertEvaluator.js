@@ -108,7 +108,7 @@ export function createAlertEvent(result, now = new Date()) {
       value: observedValue,
     }),
     createdAt: now.toISOString(),
-    acknowledged: false,
+    acknowledgedAt: null,
   };
 }
 

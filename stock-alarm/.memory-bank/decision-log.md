@@ -33,3 +33,11 @@
 이유: 새 Codex 세션이 프로젝트 상태를 놓치지 않고 `.memory-bank/`와 task card를 먼저 확인하도록 프로젝트 루트 계약에 남겨야 한다.
 
 결과: 이후 `stock-alarm` 작업은 작업 전 memory bank 읽기, 작업 전/후 task card 갱신, secret 저장 금지 경계를 따른다.
+
+## 2026-05-10
+
+결정: alert event 확인 상태는 boolean `acknowledged` 대신 `acknowledgedAt: string | null`로 표현한다.
+
+이유: PRD와 Supabase 모델은 `acknowledged_at` timestamp 업데이트를 기준으로 하므로, demo/browser state도 같은 의미 모델을 쓰는 편이 후속 저장소 연결에 안전하다.
+
+결과: 새 event는 `acknowledgedAt: null`로 생성되고, 단일 확인과 `모두 확인`은 현재 시각 ISO string을 저장한다.

@@ -124,5 +124,6 @@ test("triggered rules create alert events with display values", () => {
   assert.equal(events[0].alertRuleId, "rule-aapl");
   assert.equal(events[0].symbol, "AAPL");
   assert.equal(events[0].triggeredValue, "$189.42");
+  assert.equal(events[0].acknowledgedAt, null);
   assert.match(events[0].message, /조건을 충족했습니다/);
 });

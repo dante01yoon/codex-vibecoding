@@ -129,7 +129,7 @@ const INITIAL_ALERTS = [
     message: "AAPL 일일 등락률이 설정값 이상입니다.",
     triggeredValue: "+0.68%",
     createdAt: demoTimestamp(1),
-    acknowledged: false,
+    acknowledgedAt: null,
   },
   {
     id: "alert-samsung-price",
@@ -137,7 +137,7 @@ const INITIAL_ALERTS = [
     message: "005930 가격이 설정값 이하입니다.",
     triggeredValue: "82,200 KRW",
     createdAt: demoTimestamp(18),
-    acknowledged: true,
+    acknowledgedAt: demoTimestamp(15),
   },
 ];
 
@@ -303,9 +303,23 @@ function App() {
   }
 
   function acknowledgeAlert(alertId) {
+    const acknowledgedAt = new Date().toISOString();
+
     setAlerts((items) =>
       items.map((alert) =>
-        alert.id === alertId ? { ...alert, acknowledged: true } : alert,
+        alert.id === alertId ? { ...alert, acknowledgedAt } : alert,
+      ),
+    );
+  }
+
+  function acknowledgeSelectedAlerts() {
+    const acknowledgedAt = new Date().toISOString();
+
+    setAlerts((items) =>
+      items.map((alert) =>
+        alert.symbol === selectedStock.symbol && !alert.acknowledgedAt
+          ? { ...alert, acknowledgedAt }
+          : alert,
       ),
     );
   }
@@ -363,6 +377,7 @@ function App() {
               formError={formError}
               rules={selectedRules}
               selectedStock={selectedStock}
+              onAcknowledgeAll={acknowledgeSelectedAlerts}
               onAcknowledgeAlert={acknowledgeAlert}
               onFormChange={setForm}
               onRuleSubmit={handleRuleSubmit}
@@ -770,6 +785,7 @@ function AlertPanel({
   alerts,
   form,
   formError,
+  onAcknowledgeAll,
   onAcknowledgeAlert,
   onFormChange,
   onRuleSubmit,
@@ -777,6 +793,8 @@ function AlertPanel({
   rules,
   selectedStock,
 }) {
+  const pendingAlertCount = alerts.filter((alert) => !alert.acknowledgedAt).length;
+
   return (
     <div className="space-y-4">
       <Panel title="알림 규칙" icon={<Bell aria-hidden="true" size={18} />}>
@@ -877,43 +895,77 @@ function AlertPanel({
         )}
       </Panel>
 
-      <Panel title="최근 알림" icon={<BellRing aria-hidden="true" size={18} />}>
+      <Panel
+        title="최근 알림"
+        icon={<BellRing aria-hidden="true" size={18} />}
+        actions={
+          pendingAlertCount > 0 ? (
+            <button
+              className="focus-ring inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border-default bg-bg-surface px-2.5 text-xs font-semibold text-text-secondary transition hover:border-border-strong hover:bg-bg-surface-muted"
+              onClick={onAcknowledgeAll}
+              type="button"
+            >
+              <Check aria-hidden="true" size={14} />
+              모두 확인
+            </button>
+          ) : null
+        }
+      >
         {alerts.length === 0 ? (
           <EmptyState title="최근 알림이 없습니다" description="조건이 충족되면 이 영역에 기록됩니다." />
         ) : (
           <div aria-live="polite" className="space-y-2">
-            {alerts.map((alert) => (
-              <div
-                className={`rounded-lg border px-3 py-3 ${
-                  alert.acknowledged
-                    ? "border-border-default bg-bg-surface-muted text-text-muted"
-                    : "border-red-200 bg-red-50 text-text-primary"
-                }`}
-                key={alert.id}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{alert.message}</p>
-                    <p className="tabular mt-1 text-xs text-text-muted">
-                      {alert.triggeredValue} · {formatRelativeTime(alert.createdAt)}
-                    </p>
+            {alerts.map((alert) => {
+              const acknowledged = Boolean(alert.acknowledgedAt);
+
+              return (
+                <div
+                  className={`rounded-lg border px-3 py-3 ${
+                    acknowledged
+                      ? "border-border-default bg-bg-surface-muted text-text-muted"
+                      : "border-red-200 bg-red-50 text-text-primary"
+                  }`}
+                  key={alert.id}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                        <span className="tabular rounded-md bg-bg-surface px-1.5 py-0.5 text-xs font-semibold text-text-secondary">
+                          {alert.symbol}
+                        </span>
+                        <span
+                          className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${
+                            acknowledged
+                              ? "bg-bg-surface text-text-muted"
+                              : "bg-red-100 text-alert-triggered"
+                          }`}
+                        >
+                          {acknowledged ? "확인됨" : "미확인"}
+                        </span>
+                      </div>
+                      <p className="text-sm font-semibold">{alert.message}</p>
+                      <p className="tabular mt-1 text-xs text-text-muted">
+                        {alert.triggeredValue} · 발생 {formatRelativeTime(alert.createdAt)}
+                      </p>
+                      {acknowledged && (
+                        <p className="tabular mt-1 text-xs text-text-muted">
+                          확인 {formatRelativeTime(alert.acknowledgedAt)}
+                        </p>
+                      )}
+                    </div>
+                    {!acknowledged && (
+                      <button
+                        className="focus-ring h-8 shrink-0 rounded-md border border-red-200 bg-bg-surface px-2 text-xs font-semibold text-alert-triggered transition hover:bg-red-100"
+                        onClick={() => onAcknowledgeAlert(alert.id)}
+                        type="button"
+                      >
+                        확인
+                      </button>
+                    )}
                   </div>
-                  {alert.acknowledged ? (
-                    <span className="rounded-md bg-bg-surface px-2 py-1 text-xs font-medium text-text-muted">
-                      확인됨
-                    </span>
-                  ) : (
-                    <button
-                      className="focus-ring h-8 rounded-md border border-red-200 bg-bg-surface px-2 text-xs font-semibold text-alert-triggered hover:bg-red-100"
-                      onClick={() => onAcknowledgeAlert(alert.id)}
-                      type="button"
-                    >
-                      확인
-                    </button>
-                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Panel>
@@ -959,12 +1011,15 @@ function RuleRow({ onToggle, rule, stock }) {
   );
 }
 
-function Panel({ children, className = "", icon, title }) {
+function Panel({ actions = null, children, className = "", icon, title }) {
   return (
     <section className={`rounded-lg border border-border-default bg-bg-surface p-4 ${className}`}>
-      <div className="mb-4 flex items-center gap-2 text-text-primary">
-        {icon}
-        <h2 className="text-base font-semibold leading-6">{title}</h2>
+      <div className="mb-4 flex items-center justify-between gap-3 text-text-primary">
+        <div className="flex min-w-0 items-center gap-2">
+          {icon}
+          <h2 className="text-base font-semibold leading-6">{title}</h2>
+        </div>
+        {actions}
       </div>
       {children}
     </section>

@@ -45,3 +45,33 @@ git diff --check -- stock-alarm/AGENTS.md stock-alarm/.memory-bank
 결과:
 
 - pass.
+
+## 2026-05-10
+
+작업: 최근 알림 확인 UX 추가
+
+명령:
+
+```bash
+npm test
+npm run build
+npx @google/design.md lint DESIGN.md
+git diff --check -- stock-alarm .agents/skills/stock-alert-memory-bank
+```
+
+결과:
+
+- `npm test`: pass, 7 tests.
+- `npm run build`: pass, Vite production build 성공.
+- `npx @google/design.md lint DESIGN.md`: pass, errors 0, warnings 0.
+- `git diff --check -- stock-alarm .agents/skills/stock-alert-memory-bank`: pass.
+
+브라우저 확인:
+
+- Chrome DevTools로 `http://127.0.0.1:5175/` 확인.
+- desktop 1440x950: 단일 `확인` 클릭 시 `확인됨`, `확인 방금` 표시 확인.
+- desktop 1440x950: 새 demo alert 2개 생성 후 `모두 확인` 클릭 시 모든 미확인 알림이 확인 상태로 변경되고 `모두 확인` 버튼이 사라짐.
+- desktop 1440x950: horizontal overflow 없음.
+- mobile 390x844: horizontal overflow 없음.
+- Notification denied 상태를 init script로 흉내 냈을 때도 `브라우저 알림 차단 · 인앱 알림 활성` copy와 인앱 alert event 생성 확인.
+- console error 없음.
