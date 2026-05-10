@@ -1,0 +1,238 @@
+<style>
+  .layout-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .mini-app {
+    border: 1px solid #d9e2ec;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 330px;
+  }
+  .mini-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #52606d;
+  }
+  .mini-logo {
+    width: 64px;
+    height: 12px;
+    border-radius: 999px;
+    background: #2f5d62;
+  }
+  .mini-composer,
+  .mini-card,
+  .mini-side {
+    border: 1px solid #d9e2ec;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .mini-composer {
+    margin-bottom: 10px;
+  }
+  .mini-line {
+    height: 9px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    margin-bottom: 7px;
+  }
+  .mini-line.short { width: 44%; }
+  .mini-line.mid { width: 68%; }
+  .mini-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .mini-action {
+    width: 38px;
+    height: 22px;
+    border-radius: 6px;
+    background: #e2e8f0;
+  }
+  .mini-submit {
+    margin-left: auto;
+    width: 54px;
+    background: #2f5d62;
+  }
+  .mini-card {
+    margin-bottom: 8px;
+  }
+  .mini-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .mini-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #d97706;
+  }
+  .mini-media {
+    height: 58px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #e0f2fe, #fde68a);
+    border: 1px solid #d9e2ec;
+    margin-top: 8px;
+  }
+  .split-mini {
+    display: grid;
+    grid-template-columns: 0.82fr 1.18fr;
+    gap: 10px;
+  }
+  .mini-side {
+    min-height: 282px;
+  }
+  .mini-pill-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .mini-pill {
+    width: 42px;
+    height: 18px;
+    border-radius: 999px;
+    background: #e2e8f0;
+  }
+  .compact-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 62px;
+    gap: 8px;
+    align-items: center;
+    border: 1px solid #d9e2ec;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+  .compact-media {
+    width: 62px;
+    height: 44px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #fee2e2, #bfdbfe);
+  }
+  @media (max-width: 900px) {
+    .layout-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<h2>Pick a layout direction for the realtime guestbook</h2>
+<p class="subtitle">All options support realtime posts, image upload, canvas drawings, mood, avatar color, and author-only delete. The difference is where writing and browsing feel strongest.</p>
+
+<div class="layout-grid cards">
+  <div class="card" data-choice="a-top-composer" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mini-app">
+        <div class="mini-bar"><div class="mini-logo"></div><span>Live now</span></div>
+        <div class="mini-composer">
+          <div class="mini-line mid"></div>
+          <div class="mini-line"></div>
+          <div class="mini-actions">
+            <div class="mini-action"></div>
+            <div class="mini-action"></div>
+            <div class="mini-action mini-submit"></div>
+          </div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-head"><div class="mini-avatar"></div><div class="mini-line short"></div></div>
+          <div class="mini-line"></div>
+          <div class="mini-line mid"></div>
+          <div class="mini-media"></div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-head"><div class="mini-avatar" style="background:#2563eb"></div><div class="mini-line short"></div></div>
+          <div class="mini-line mid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Composer-first stream</h3>
+      <p>Posting is always obvious. Best for a guestbook where new visitors should write immediately.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b-split-workbench" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mini-app">
+        <div class="mini-bar"><div class="mini-logo"></div><span>24 posts</span></div>
+        <div class="split-mini">
+          <div class="mini-side">
+            <div class="mini-line mid"></div>
+            <div class="mini-line"></div>
+            <div class="mini-line"></div>
+            <div class="mini-media" style="height:76px"></div>
+            <div class="mini-pill-row">
+              <div class="mini-pill"></div>
+              <div class="mini-pill"></div>
+              <div class="mini-pill"></div>
+            </div>
+            <div class="mini-actions">
+              <div class="mini-action"></div>
+              <div class="mini-action mini-submit"></div>
+            </div>
+          </div>
+          <div>
+            <div class="mini-card">
+              <div class="mini-card-head"><div class="mini-avatar" style="background:#059669"></div><div class="mini-line short"></div></div>
+              <div class="mini-line"></div>
+              <div class="mini-media"></div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-card-head"><div class="mini-avatar" style="background:#be123c"></div><div class="mini-line short"></div></div>
+              <div class="mini-line mid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Split write-and-read</h3>
+      <p>Writing tools stay visible while the live feed updates beside them. Strong for desktop, needs a stacked mobile version.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c-compact-feed" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mini-app">
+        <div class="mini-bar"><div class="mini-logo"></div><span>Newest first</span></div>
+        <div class="mini-composer" style="padding:8px">
+          <div class="mini-line mid"></div>
+          <div class="mini-actions">
+            <div class="mini-action"></div>
+            <div class="mini-action"></div>
+            <div class="mini-action mini-submit"></div>
+          </div>
+        </div>
+        <div class="compact-row">
+          <div class="mini-avatar" style="background:#7c3aed"></div>
+          <div><div class="mini-line mid"></div><div class="mini-line"></div></div>
+          <div class="compact-media"></div>
+        </div>
+        <div class="compact-row">
+          <div class="mini-avatar" style="background:#0f766e"></div>
+          <div><div class="mini-line short"></div><div class="mini-line mid"></div></div>
+          <div class="compact-media" style="background:linear-gradient(135deg,#dcfce7,#fef3c7)"></div>
+        </div>
+        <div class="compact-row">
+          <div class="mini-avatar" style="background:#ea580c"></div>
+          <div><div class="mini-line mid"></div><div class="mini-line"></div></div>
+          <div class="compact-media" style="background:linear-gradient(135deg,#fae8ff,#dbeafe)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Compact inbox feed</h3>
+      <p>Best for scanning many short posts quickly. Media is a preview first, then expands when opened.</p>
+    </div>
+  </div>
+</div>

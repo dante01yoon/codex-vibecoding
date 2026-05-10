@@ -4,6 +4,86 @@
 
 ## 2026-05-10
 
+작업: 실제 Market API 사용 경로 활성화
+
+명령:
+
+```bash
+npm test
+npm run build
+node --check server/index.js && node --check server/providers/alphaVantageProvider.js && node --check server/providers/kisProvider.js
+STOCK_API_PORT=8790 ALPHA_VANTAGE_API_KEY=demo node server/index.js
+curl -sS 'http://127.0.0.1:8790/api/health'
+curl -sS 'http://127.0.0.1:8790/api/quotes?provider=alpha-vantage&market=US&symbols=IBM'
+curl -sS 'http://127.0.0.1:8790/api/search?provider=alpha-vantage&market=US&query=IBM'
+curl -sS 'http://127.0.0.1:8790/api/quotes?provider=kis&market=KR&symbols=005930'
+curl -sS 'http://127.0.0.1:8787/api/quotes?provider=auto&market=US&symbols=AAPL'
+curl -sS 'http://127.0.0.1:8787/api/history?provider=auto&market=US&symbol=AAPL&range=1M'
+npx @google/design.md lint DESIGN.md
+git diff --check -- .gitignore stock-alarm .agents/skills/stock-alert-memory-bank
+```
+
+결과:
+
+- `npm test`: pass, 10 tests.
+- `npm run build`: pass.
+- `node --check ...`: pass.
+- API health: pass, provider readiness에 `alphaVantage: true`, `kis: false` 반환.
+- Alpha Vantage IBM quote: pass, 실제 Alpha Vantage 응답을 normalized quote로 반환.
+- Alpha Vantage search with demo key: expected `ALPHA_VANTAGE_LIMITED`.
+- KIS quote without KIS env: expected `PROVIDER_SETUP_REQUIRED`.
+- Auto quote/history without key: pass, demo fallback 200 반환.
+- `npx @google/design.md lint DESIGN.md`: pass, errors 0, warnings 0.
+- `git diff --check -- .gitignore stock-alarm .agents/skills/stock-alert-memory-bank`: pass.
+- Chrome DevTools mobile reload: `/api/*provider=auto` 요청이 200/304로 응답, console error 없음, horizontal overflow 없음.
+
+메모:
+
+- 실제 key/token 값은 기록하지 않았다.
+- 검증용 임시 API 서버는 종료했다.
+
+## 2026-05-10
+
+작업: API/Supabase 연결 1차 구현
+
+명령:
+
+```bash
+npm test
+npm run build
+node --check server/index.js && node --check server/providers/alphaVantageProvider.js && node --check server/providers/kisProvider.js
+curl -sS 'http://127.0.0.1:8787/api/health'
+curl -sS 'http://127.0.0.1:8787/api/search?provider=demo&market=KR&query=%EC%82%BC%EC%84%B1'
+curl -sS 'http://127.0.0.1:8787/api/quotes?provider=demo&symbols=AAPL,005930'
+curl -sS 'http://127.0.0.1:8787/api/quotes?provider=alpha-vantage&symbols=AAPL'
+npx @google/design.md lint DESIGN.md
+git diff --check -- stock-alarm .agents/skills/stock-alert-memory-bank
+```
+
+결과:
+
+- `npm test`: pass, 10 tests.
+- `npm run build`: pass, Vite production build 성공.
+- `node --check ...`: pass.
+- API health: pass, Demo/Alpha Vantage/KIS provider 목록 반환.
+- Demo search: pass, `005930` 삼성전자 반환.
+- Demo quotes: pass, `AAPL`, `005930` quote 반환.
+- Alpha Vantage without key: expected `PROVIDER_SETUP_REQUIRED`.
+- `npx @google/design.md lint DESIGN.md`: pass, errors 0, warnings 0.
+- `git diff --check -- stock-alarm .agents/skills/stock-alert-memory-bank`: pass.
+
+브라우저 확인:
+
+- Chrome DevTools로 `http://127.0.0.1:5175/` 확인.
+- status bar에 `Demo provider 연결됨`, `Supabase env 없음` 표시 확인.
+- DevTools network에서 `/api/health`, `/api/search`, `/api/quotes`, `/api/history` 요청 확인.
+- 데모 평가 버튼 클릭 후 `쿨다운 중 1개 · 방금` 상태 표시 확인.
+- desktop 1440x900: horizontal overflow 없음, clipped text 없음.
+- mobile 390x844: horizontal overflow 없음, clipped text 없음.
+- console error/warn 없음.
+
+## 2026-05-10
+
 작업: Demo alert evaluator 현재 상태 확인
 
 명령:

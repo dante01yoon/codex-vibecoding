@@ -1,0 +1,4 @@
+interface:
+  display_name: "Guestbook Memory Bank"
+  short_description: "Maintain guestbook project memory"
+  default_prompt: "Use $guestbook-memory-bank to prepare the next realtime guestbook task."

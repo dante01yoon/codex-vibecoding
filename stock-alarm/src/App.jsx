@@ -4,88 +4,30 @@ import {
   Check,
   ChevronDown,
   Clock3,
+  Database,
   LineChart,
   Plus,
   RefreshCw,
   Search,
+  Server,
   Settings,
   ShieldAlert,
   SlidersHorizontal,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { evaluateAlertRules } from "./lib/alertEvaluator.js";
+import { getDemoHistoryValues, getDemoStocks } from "./lib/demoMarketData.js";
+import { ensureAnonymousSession, isSupabaseConfigured } from "./lib/supabaseClient.js";
+import { fetchApiHealth, fetchHistory, fetchQuotes, searchSymbols } from "./lib/stockApiClient.js";
 
-const STOCKS = [
-  {
-    symbol: "AAPL",
-    displayName: "Apple Inc.",
-    market: "US",
-    exchange: "NASDAQ",
-    currency: "USD",
-    provider: "Demo provider",
-    price: 189.42,
-    change: 1.28,
-    changePercent: 0.68,
-    previousClose: 188.14,
-    updatedAt: "2026-05-09 22:00 KST",
-    isSample: true,
-    isDelayed: true,
-    marketStatus: "Market closed",
-    history: [181.2, 182.4, 181.8, 184.1, 185.7, 187.2, 186.9, 188.1, 189.4],
-  },
-  {
-    symbol: "MSFT",
-    displayName: "Microsoft Corp.",
-    market: "US",
-    exchange: "NASDAQ",
-    currency: "USD",
-    provider: "Demo provider",
-    price: 493.36,
-    change: -2.14,
-    changePercent: -0.43,
-    previousClose: 495.5,
-    updatedAt: "2026-05-09 22:00 KST",
-    isSample: true,
-    isDelayed: true,
-    marketStatus: "Market closed",
-    history: [486.1, 488.6, 492.2, 491.4, 495.8, 497.1, 496.4, 494.8, 493.4],
-  },
-  {
-    symbol: "005930",
-    displayName: "삼성전자",
-    market: "KR",
-    exchange: "KRX",
-    currency: "KRW",
-    provider: "Demo provider",
-    price: 82200,
-    change: -900,
-    changePercent: -1.08,
-    previousClose: 83100,
-    updatedAt: "2026-05-09 15:30 KST",
-    isSample: true,
-    isDelayed: false,
-    marketStatus: "Market closed",
-    history: [80100, 81200, 81800, 82900, 82600, 83500, 83100, 82400, 82200],
-  },
-  {
-    symbol: "000660",
-    displayName: "SK하이닉스",
-    market: "KR",
-    exchange: "KRX",
-    currency: "KRW",
-    provider: "Demo provider",
-    price: 214500,
-    change: 3500,
-    changePercent: 1.66,
-    previousClose: 211000,
-    updatedAt: "2026-05-09 15:30 KST",
-    isSample: true,
-    isDelayed: false,
-    marketStatus: "Market closed",
-    history: [205000, 207500, 206000, 210000, 211000, 213500, 212000, 214000, 214500],
-  },
-];
+const INITIAL_STOCKS = getDemoStocks();
+const MARKET_DATA_PROVIDER = ["demo", "auto", "alpha-vantage", "kis"].includes(
+  import.meta.env.VITE_MARKET_DATA_PROVIDER,
+)
+  ? import.meta.env.VITE_MARKET_DATA_PROVIDER
+  : "auto";
+const REAL_API_SEARCH_MIN_LENGTH = 2;
 
 const demoTimestamp = (minutesAgo) => new Date(Date.now() - minutesAgo * 60 * 1000).toISOString();
 
@@ -156,10 +98,20 @@ function App() {
   const [query, setQuery] = useState("");
   const [marketFilter, setMarketFilter] = useState("All");
   const [selectedSymbol, setSelectedSymbol] = useState("AAPL");
+  const [stocks, setStocks] = useState(INITIAL_STOCKS);
+  const [searchResults, setSearchResults] = useState(INITIAL_STOCKS);
   const [watchlist, setWatchlist] = useState(["AAPL", "005930", "000660"]);
   const [rules, setRules] = useState(INITIAL_RULES);
   const [alerts, setAlerts] = useState(INITIAL_ALERTS);
   const [range, setRange] = useState("1M");
+  const [apiStatus, setApiStatus] = useState({
+    tone: "sample",
+    value: "데모 데이터 준비됨",
+  });
+  const [storageStatus, setStorageStatus] = useState({
+    tone: "info",
+    value: "저장 설정 확인 중",
+  });
   const [notificationState, setNotificationState] = useState(getInitialNotificationState);
   const [lastEvaluation, setLastEvaluation] = useState("아직 평가 전");
   const [form, setForm] = useState({
@@ -171,17 +123,21 @@ function App() {
   });
   const [formError, setFormError] = useState("");
 
-  const selectedStock = STOCKS.find((stock) => stock.symbol === selectedSymbol) ?? STOCKS[0];
+  const watchlistKey = watchlist.join(",");
+  const selectedStock =
+    stocks.find((stock) => stock.symbol === selectedSymbol) ??
+    searchResults.find((stock) => stock.symbol === selectedSymbol) ??
+    INITIAL_STOCKS[0];
   const selectedRules = rules.filter((rule) => rule.symbol === selectedStock.symbol);
   const selectedAlerts = alerts.filter((alert) => alert.symbol === selectedStock.symbol);
   const watchlistStocks = watchlist
-    .map((symbol) => STOCKS.find((stock) => stock.symbol === symbol))
+    .map((symbol) => stocks.find((stock) => stock.symbol === symbol))
     .filter(Boolean);
 
   const filteredStocks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return STOCKS.filter((stock) => {
+    return searchResults.filter((stock) => {
       const matchesMarket = marketFilter === "All" || stock.market === marketFilter;
       const matchesQuery =
         normalizedQuery.length === 0 ||
@@ -190,7 +146,149 @@ function App() {
 
       return matchesMarket && matchesQuery;
     });
-  }, [marketFilter, query]);
+  }, [marketFilter, query, searchResults]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMarketData() {
+      try {
+        await fetchApiHealth();
+        const [symbolResponse, quoteResult] = await Promise.all([
+          searchSymbolsWithFallback({
+            market: marketFilter,
+            provider: MARKET_DATA_PROVIDER,
+            query,
+          }),
+          fetchWatchlistQuotesWithFallback({
+            provider: MARKET_DATA_PROVIDER,
+            stocks,
+            symbols: watchlist,
+          }),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        const quotes = quoteResult.responses.flatMap((response) => response.data);
+        const mergedSearchResults = mergeStockRecords({
+          baseStocks: INITIAL_STOCKS,
+          quotes,
+          symbols: symbolResponse.data,
+        });
+
+        setSearchResults(mergedSearchResults);
+        setStocks((currentStocks) =>
+          mergeStockRecords({
+            baseStocks: currentStocks,
+            quotes,
+            symbols: [...symbolResponse.data, ...currentStocks],
+          }),
+        );
+        setApiStatus(apiStatusFromQuoteResult(quoteResult, MARKET_DATA_PROVIDER));
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        setSearchResults(INITIAL_STOCKS);
+        setApiStatus({
+          tone: "warning",
+          value: apiStatusLabel(error),
+        });
+      }
+    }
+
+    loadMarketData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [marketFilter, query, watchlistKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadHistory() {
+      try {
+        const response = await fetchHistory({
+          market: selectedStock.market,
+          provider: MARKET_DATA_PROVIDER,
+          range,
+          symbol: selectedStock.symbol,
+        });
+        const history = response.data.bars.map((bar) => Number(bar.close)).filter(Number.isFinite);
+
+        if (cancelled || history.length === 0) {
+          return;
+        }
+
+        const withHistory = (stock) =>
+          stock.symbol === selectedStock.symbol ? { ...stock, history } : stock;
+        setStocks((items) => items.map(withHistory));
+        setSearchResults((items) => items.map(withHistory));
+      } catch {
+        const fallback = await fetchHistory({
+          market: selectedStock.market,
+          provider: "demo",
+          range,
+          symbol: selectedStock.symbol,
+        }).catch(() => null);
+        const history =
+          fallback?.data?.bars.map((bar) => Number(bar.close)).filter(Number.isFinite) ??
+          getDemoHistoryValues(selectedStock.symbol);
+        const withHistory = (stock) =>
+          stock.symbol === selectedStock.symbol ? { ...stock, history } : stock;
+        setStocks((items) => items.map(withHistory));
+        setSearchResults((items) => items.map(withHistory));
+      }
+    }
+
+    loadHistory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [range, selectedStock.market, selectedStock.symbol]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function initializeStorage() {
+      if (!isSupabaseConfigured()) {
+        setStorageStatus({
+          tone: "sample",
+          value: "Supabase env 없음",
+        });
+        return;
+      }
+
+      try {
+        const { user } = await ensureAnonymousSession();
+
+        if (!cancelled) {
+          setStorageStatus({
+            tone: "active",
+            value: user ? "익명 세션 연결됨" : "Supabase 연결됨",
+          });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setStorageStatus({
+            tone: "warning",
+            value: storageStatusLabel(error),
+          });
+        }
+      }
+    }
+
+    initializeStorage();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function handleAddToWatchlist() {
     if (!watchlist.includes(selectedStock.symbol)) {
@@ -238,7 +336,7 @@ function App() {
     const watchedRules = rules.filter((rule) => watchlist.includes(rule.symbol));
     const { events, results } = evaluateAlertRules({
       now,
-      quotes: STOCKS,
+      quotes: stocks,
       rules: watchedRules,
     });
     const triggeredRuleIds = new Set(events.map((event) => event.alertRuleId));
@@ -328,15 +426,18 @@ function App() {
     <div className="min-h-screen bg-bg-app text-text-primary">
       <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-4 px-3 py-4 sm:px-4 lg:px-6 lg:py-6">
         <AppHeader
+          hasLiveData={stocks.some((stock) => !stock.isSample)}
           notificationState={notificationState}
           onNotificationClick={handleNotificationRequest}
           onRefreshClick={handleRunDemoEvaluation}
         />
 
         <StatusBar
+          apiStatus={apiStatus}
           lastEvaluation={lastEvaluation}
           notificationState={notificationState}
           selectedStock={selectedStock}
+          storageStatus={storageStatus}
         />
 
         <main className="grid gap-4 lg:grid-cols-[300px_minmax(0,1fr)_340px] xl:grid-cols-[320px_minmax(0,1fr)_360px]">
@@ -390,7 +491,7 @@ function App() {
   );
 }
 
-function AppHeader({ notificationState, onNotificationClick, onRefreshClick }) {
+function AppHeader({ hasLiveData, notificationState, onNotificationClick, onRefreshClick }) {
   return (
     <header className="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -408,7 +509,9 @@ function AppHeader({ notificationState, onNotificationClick, onRefreshClick }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <StatusBadge tone="sample">Sample data</StatusBadge>
+        <StatusBadge tone={hasLiveData ? "active" : "sample"}>
+          {hasLiveData ? "API data" : "Sample data"}
+        </StatusBadge>
         <StatusBadge tone="warning">Market closed</StatusBadge>
         <IconButton label="데모 알림 평가" title="데모 알림 평가" onClick={onRefreshClick}>
           <RefreshCw aria-hidden="true" size={18} />
@@ -433,17 +536,29 @@ function AppHeader({ notificationState, onNotificationClick, onRefreshClick }) {
   );
 }
 
-function StatusBar({ lastEvaluation, notificationState, selectedStock }) {
+function StatusBar({ apiStatus, lastEvaluation, notificationState, selectedStock, storageStatus }) {
   return (
     <section
       aria-label="데이터 상태"
-      className="grid gap-3 rounded-lg border border-border-default bg-bg-surface px-4 py-3 text-sm text-text-secondary md:grid-cols-2 xl:grid-cols-4"
+      className="grid gap-3 rounded-lg border border-border-default bg-bg-surface px-4 py-3 text-sm text-text-secondary md:grid-cols-2 xl:grid-cols-6"
     >
       <InlineStatus
         icon={<ShieldAlert aria-hidden="true" size={17} />}
         label="데이터 출처"
-        value={`${selectedStock.provider} · 샘플 데이터`}
-        tone="sample"
+        value={`${selectedStock.provider}${selectedStock.isSample ? " · 샘플" : ""}`}
+        tone={selectedStock.isSample ? "sample" : "active"}
+      />
+      <InlineStatus
+        icon={<Server aria-hidden="true" size={17} />}
+        label="API"
+        value={apiStatus.value}
+        tone={apiStatus.tone}
+      />
+      <InlineStatus
+        icon={<Database aria-hidden="true" size={17} />}
+        label="저장"
+        value={storageStatus.value}
+        tone={storageStatus.tone}
       />
       <InlineStatus
         icon={<Clock3 aria-hidden="true" size={17} />}
@@ -609,7 +724,11 @@ function StockDetail({ isWatched, onAddToWatchlist, onRangeChange, range, rules,
               <h2 className="truncate text-2xl font-bold leading-8 tracking-[0px]">
                 {selectedStock.displayName}
               </h2>
-              <StatusBadge tone="sample">Sample</StatusBadge>
+              {selectedStock.isSample ? (
+                <StatusBadge tone="sample">Sample</StatusBadge>
+              ) : (
+                <StatusBadge tone="active">API</StatusBadge>
+              )}
               {selectedStock.isDelayed && <StatusBadge tone="warning">Delayed</StatusBadge>}
             </div>
             <p className="mt-1 text-sm text-text-muted">
@@ -678,7 +797,10 @@ function StockDetail({ isWatched, onAddToWatchlist, onRangeChange, range, rules,
 }
 
 function PriceChart({ rules, stock }) {
-  const values = stock.history;
+  const values =
+    Array.isArray(stock.history) && stock.history.length >= 2
+      ? stock.history
+      : [stock.previousClose ?? stock.price, stock.price];
   const priceRules = rules.filter((rule) => rule.enabled && rule.ruleType === "price");
   const allValues = [...values, ...priceRules.map((rule) => rule.thresholdValue)];
   const min = Math.min(...allValues);
@@ -1172,6 +1294,212 @@ function formatRelativeTime(value, now = new Date()) {
   }
 
   return `${Math.floor(diffHours / 24)}일 전`;
+}
+
+async function searchSymbolsWithFallback({ market, provider, query }) {
+  const normalizedQuery = query.trim();
+  const primaryProvider =
+    provider === "demo" || normalizedQuery.length < REAL_API_SEARCH_MIN_LENGTH ? "demo" : provider;
+
+  try {
+    return await searchSymbols({
+      market,
+      provider: primaryProvider,
+      query,
+    });
+  } catch {
+    return searchSymbols({
+      market,
+      provider: "demo",
+      query,
+    });
+  }
+}
+
+async function fetchWatchlistQuotesWithFallback({ provider, stocks, symbols }) {
+  const groups = groupSymbolsByMarket(symbols, stocks);
+  const results = await Promise.all(
+    Object.entries(groups).map(([market, marketSymbols]) =>
+      fetchMarketQuotesWithFallback({
+        market,
+        provider,
+        symbols: marketSymbols,
+      }),
+    ),
+  );
+
+  return {
+    responses: results.map((result) => result.response),
+    results,
+  };
+}
+
+async function fetchMarketQuotesWithFallback({ market, provider, symbols }) {
+  try {
+    const response = await fetchQuotes({
+      market,
+      provider,
+      symbols,
+    });
+
+    return {
+      error: null,
+      fallback: response.providerStatus?.provider === "demo",
+      market,
+      response,
+    };
+  } catch (error) {
+    const response = await fetchQuotes({
+      market,
+      provider: "demo",
+      symbols,
+    });
+
+    return {
+      error,
+      fallback: true,
+      market,
+      response,
+    };
+  }
+}
+
+function groupSymbolsByMarket(symbols, stocks) {
+  const stockMap = new Map(stocks.map((stock) => [stock.symbol, stock]));
+
+  return symbols.reduce((groups, symbol) => {
+    const market = stockMap.get(symbol)?.market ?? inferMarketForSymbol(symbol);
+    return {
+      ...groups,
+      [market]: [...(groups[market] ?? []), symbol],
+    };
+  }, {});
+}
+
+function inferMarketForSymbol(symbol) {
+  return /^\d{6}$/.test(symbol) ? "KR" : "US";
+}
+
+function apiStatusFromQuoteResult(quoteResult, provider) {
+  if (provider === "demo") {
+    return {
+      tone: "sample",
+      value: "데모 데이터 사용 중",
+    };
+  }
+
+  const realLabels = [
+    ...new Set(
+      quoteResult.results
+        .filter((result) => !result.fallback)
+        .map((result) => result.response.providerStatus?.label)
+        .filter(Boolean),
+    ),
+  ];
+  const fallbackMarkets = quoteResult.results
+    .filter((result) => result.fallback)
+    .map((result) => result.market);
+
+  if (realLabels.length > 0 && fallbackMarkets.length === 0) {
+    return {
+      tone: "active",
+      value: `${realLabels.join(" + ")} 연결됨`,
+    };
+  }
+
+  if (realLabels.length > 0 && fallbackMarkets.length > 0) {
+    return {
+      tone: "warning",
+      value: `실제 API 일부 연결 · ${fallbackMarkets.join("/")} 데모`,
+    };
+  }
+
+  return {
+    tone: "warning",
+    value: "실제 API 설정 필요 · 데모 유지",
+  };
+}
+
+function mergeStockRecords({ baseStocks, quotes = [], symbols = [] }) {
+  const records = new Map();
+
+  baseStocks.forEach((stock) => {
+    records.set(stock.symbol, cloneStock(stock));
+  });
+
+  symbols.forEach((symbolRecord) => {
+    const current = records.get(symbolRecord.symbol);
+    records.set(
+      symbolRecord.symbol,
+      completeStockRecord({
+        ...current,
+        ...symbolRecord,
+        displayName: symbolRecord.displayName ?? current?.displayName ?? symbolRecord.symbol,
+      }),
+    );
+  });
+
+  quotes.forEach((quote) => {
+    const current = records.get(quote.symbol);
+    records.set(
+      quote.symbol,
+      completeStockRecord({
+        ...current,
+        ...quote,
+        displayName: current?.displayName ?? quote.displayName ?? quote.symbol,
+        history: current?.history,
+      }),
+    );
+  });
+
+  return [...records.values()];
+}
+
+function completeStockRecord(stock) {
+  const fallback = INITIAL_STOCKS.find((item) => item.symbol === stock.symbol);
+
+  return {
+    symbol: stock.symbol,
+    displayName: stock.displayName ?? fallback?.displayName ?? stock.symbol,
+    market: stock.market ?? fallback?.market ?? "US",
+    exchange: stock.exchange ?? fallback?.exchange ?? "",
+    currency: stock.currency ?? fallback?.currency ?? "USD",
+    provider: stock.provider ?? fallback?.provider ?? "Demo provider",
+    price: Number(stock.price ?? fallback?.price ?? 0),
+    change: Number(stock.change ?? fallback?.change ?? 0),
+    changePercent: Number(stock.changePercent ?? fallback?.changePercent ?? 0),
+    previousClose: Number(stock.previousClose ?? fallback?.previousClose ?? stock.price ?? 0),
+    timestamp: stock.timestamp ?? fallback?.timestamp ?? new Date().toISOString(),
+    updatedAt: stock.updatedAt ?? fallback?.updatedAt ?? "Latest quote",
+    isSample: stock.isSample ?? fallback?.isSample ?? false,
+    isDelayed: stock.isDelayed ?? fallback?.isDelayed ?? true,
+    marketStatus: stock.marketStatus ?? fallback?.marketStatus ?? "Provider quote",
+    history: stock.history ?? fallback?.history ?? getDemoHistoryValues(stock.symbol),
+  };
+}
+
+function cloneStock(stock) {
+  return { ...stock, history: [...(stock.history ?? [])] };
+}
+
+function apiStatusLabel(error) {
+  if (error?.code === "PROVIDER_SETUP_REQUIRED") {
+    return "API 설정 필요";
+  }
+
+  if (error?.code?.includes("LIMITED")) {
+    return "API 제한 · 데모 유지";
+  }
+
+  return "API 미연결 · 데모 유지";
+}
+
+function storageStatusLabel(error) {
+  if (error?.message?.toLowerCase().includes("anonymous")) {
+    return "익명 로그인 설정 필요";
+  }
+
+  return "저장 연결 실패";
 }
 
 function notificationButtonLabel(status) {

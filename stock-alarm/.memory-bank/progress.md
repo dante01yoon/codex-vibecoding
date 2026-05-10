@@ -19,16 +19,25 @@
 - 최근 알림 확인 UX 추가 완료.
 - alert event shape를 `acknowledgedAt: string | null` 기준으로 정리 완료.
 - 단일 확인, `모두 확인`, 확인 시간 표시 검증 완료.
+- Local API proxy 추가 완료.
+- Demo/Alpha Vantage/KIS provider adapter 골격 추가 완료.
+- Supabase browser client, anonymous session bootstrap, repository mapper, RLS migration 초안 추가 완료.
+- 앱 상태바에 API 연결 상태와 Supabase 저장 설정 상태 표시 완료.
+- `VITE_MARKET_DATA_PROVIDER=auto` 기반 실제 provider 호출 흐름 추가 완료.
+- 실제 Alpha Vantage quote adapter 경로를 demo API key로 검증 완료.
+- 실제 API 설정 문서 `docs/api-setup.md` 추가 완료.
 
 ## in progress
 
-- 없음.
+- 실제 개인 provider key/token과 Supabase project env를 넣은 live 연결 검증.
 
 ## blocked
 
-- 없음.
+- 실제 Alpha Vantage/KIS/Supabase credentials는 코드와 메모리에 저장하지 않는다. 사용자가 `.env`에 직접 넣은 뒤 live 검증한다.
 
 ## next
 
-- 확인 UX 변경 범위를 확인하고 필요하면 좁게 커밋/푸시한다.
-- 다음 구현 주제를 고르면 `AGENTS.md`의 Memory Bank Rule에 따라 `.memory-bank/tasks/`에 새 task card를 만든다.
+- Supabase migration을 실제 stock-alarm 프로젝트에 적용한다.
+- watchlist/rule/event repository를 UI write path에 연결한다.
+- KIS 검색/history adapter를 추가한다.
+- 필요하면 provider 선택 UI를 추가한다.

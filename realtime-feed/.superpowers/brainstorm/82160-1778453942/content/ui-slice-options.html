@@ -1,0 +1,328 @@
+<style>
+  .guestbook-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .guestbook-card {
+    min-height: 430px;
+  }
+
+  .preview-app {
+    border: 1px solid #e8dccb;
+    background: #fff8ed;
+    border-radius: 14px;
+    padding: 14px;
+    min-height: 312px;
+    color: #1f2933;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+  }
+
+  .preview-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .preview-title {
+    width: 112px;
+    height: 14px;
+    border-radius: 999px;
+    background: #1f2933;
+  }
+
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid rgba(15, 159, 143, 0.35);
+    background: #e7faf5;
+    border-radius: 999px;
+    padding: 4px 8px;
+    color: #0f766e;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #0f9f8f;
+  }
+
+  .split-preview {
+    display: grid;
+    grid-template-columns: 0.86fr 1.14fr;
+    gap: 10px;
+  }
+
+  .composer-preview {
+    border: 1px solid #e8dccb;
+    background: #fff;
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .field-line {
+    height: 10px;
+    border-radius: 999px;
+    background: #eadfce;
+    margin-bottom: 8px;
+  }
+
+  .field-line.short {
+    width: 46%;
+  }
+
+  .field-line.mid {
+    width: 70%;
+  }
+
+  .chip-row,
+  .swatch-row,
+  .button-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+
+  .chip {
+    width: 42px;
+    height: 20px;
+    border-radius: 999px;
+    border: 1px solid #e8dccb;
+    background: #fff8ed;
+  }
+
+  .chip.active {
+    border-color: #7c3aed;
+    background: #efe7ff;
+  }
+
+  .swatch {
+    width: 19px;
+    height: 19px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3px #e8dccb;
+  }
+
+  .attach-box {
+    height: 52px;
+    border: 1px dashed #d7c6ae;
+    border-radius: 10px;
+    background: #fffaf2;
+    margin-top: 10px;
+  }
+
+  .submit-preview {
+    width: 74px;
+    height: 30px;
+    border-radius: 10px;
+    background: #f9735b;
+    margin-left: auto;
+  }
+
+  .feed-preview {
+    display: grid;
+    gap: 9px;
+  }
+
+  .note-preview {
+    border: 1px solid rgba(31, 41, 51, 0.08);
+    border-radius: 8px;
+    padding: 10px;
+    min-height: 82px;
+    box-shadow: 0 8px 14px rgba(31, 41, 51, 0.08);
+  }
+
+  .paper-yellow { background: #ffe8a3; }
+  .paper-mint { background: #cff7e8; }
+  .paper-peach { background: #ffd6c2; }
+  .paper-blue { background: #d7ecff; }
+
+  .note-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .avatar-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #2563eb;
+  }
+
+  .media-preview {
+    height: 46px;
+    border-radius: 7px;
+    border: 1px solid rgba(31, 41, 51, 0.08);
+    background: linear-gradient(135deg, #fff, rgba(15, 159, 143, 0.16));
+    margin-top: 8px;
+  }
+
+  .comment-preview {
+    border-top: 1px solid rgba(31, 41, 51, 0.12);
+    margin-top: 9px;
+    padding-top: 8px;
+  }
+
+  .tiny-button {
+    width: 42px;
+    height: 20px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid rgba(31, 41, 51, 0.12);
+  }
+
+  .compact-preview .composer-preview {
+    margin-bottom: 10px;
+  }
+
+  .compact-preview .note-preview {
+    margin-bottom: 8px;
+  }
+
+  .recommended {
+    color: #0f766e;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin-bottom: 6px;
+  }
+
+  @media (max-width: 980px) {
+    .guestbook-options {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<h2>이번 UI 작업 범위를 골라 주세요</h2>
+<p class="subtitle">현재 저장소는 문서와 스킬만 있고 React 앱 코드는 아직 없습니다. 11-7 범위에 맞춰 Supabase 없이 샘플 데이터로 먼저 화면을 만드는 방향입니다.</p>
+
+<div class="guestbook-options cards">
+  <div class="card guestbook-card" data-choice="a-static-shell" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="preview-app compact-preview">
+        <div class="preview-top">
+          <div class="preview-title"></div>
+          <span class="live-pill"><span class="live-dot"></span>샘플</span>
+        </div>
+        <div class="composer-preview">
+          <div class="field-line short"></div>
+          <div class="field-line"></div>
+          <div class="chip-row">
+            <div class="chip"></div><div class="chip"></div><div class="chip active"></div>
+          </div>
+          <div class="button-row"><div class="submit-preview"></div></div>
+        </div>
+        <div class="note-preview paper-yellow">
+          <div class="note-head"><div class="avatar-dot"></div><div class="field-line short"></div></div>
+          <div class="field-line"></div>
+          <div class="field-line mid"></div>
+        </div>
+        <div class="note-preview paper-mint">
+          <div class="note-head"><div class="avatar-dot" style="background:#059669"></div><div class="field-line short"></div></div>
+          <div class="field-line mid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 정적 UI 골격</h3>
+      <p>Vite 앱을 만들고 작성 폼, 포스트잇 피드, 기본 빈/로딩 상태만 배치합니다. 가장 작지만 인터랙션 확인은 약합니다.</p>
+    </div>
+  </div>
+
+  <div class="card guestbook-card" data-choice="b-sample-interactive" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="preview-app">
+        <div class="preview-top">
+          <div>
+            <div class="recommended">추천</div>
+            <div class="preview-title"></div>
+          </div>
+          <span class="live-pill"><span class="live-dot"></span>실시간 연결됨</span>
+        </div>
+        <div class="split-preview">
+          <div class="composer-preview">
+            <div class="field-line short"></div>
+            <div class="field-line"></div>
+            <div class="chip-row">
+              <div class="chip active"></div><div class="chip"></div><div class="chip"></div>
+            </div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#2563eb"></div>
+              <div class="swatch" style="background:#059669"></div>
+              <div class="swatch" style="background:#d97706"></div>
+              <div class="swatch" style="background:#7c3aed"></div>
+            </div>
+            <div class="attach-box"></div>
+            <div class="button-row"><div class="tiny-button"></div><div class="submit-preview"></div></div>
+          </div>
+          <div class="feed-preview">
+            <div class="note-preview paper-yellow">
+              <div class="note-head"><div class="avatar-dot" style="background:#d97706"></div><div class="field-line short"></div></div>
+              <div class="field-line"></div>
+              <div class="media-preview"></div>
+              <div class="comment-preview">
+                <div class="field-line mid"></div>
+                <div class="button-row"><div class="tiny-button"></div><div class="tiny-button"></div></div>
+              </div>
+            </div>
+            <div class="note-preview paper-blue">
+              <div class="note-head"><div class="avatar-dot" style="background:#7c3aed"></div><div class="field-line short"></div></div>
+              <div class="field-line mid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 샘플 데이터 인터랙티브 MVP</h3>
+      <p>폼 입력, 샘플 글 추가, 카드 펼치기/댓글 보기, 내 글 삭제 표시, 업로드/그리기 자리까지 구현합니다. Supabase 연결 전 데모에 가장 좋습니다.</p>
+    </div>
+  </div>
+
+  <div class="card guestbook-card" data-choice="c-polished-prototype" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="preview-app">
+        <div class="preview-top">
+          <div class="preview-title"></div>
+          <span class="live-pill"><span class="live-dot"></span>재연결 중</span>
+        </div>
+        <div class="composer-preview">
+          <div class="field-line short"></div>
+          <div class="field-line"></div>
+          <div class="chip-row">
+            <div class="chip active"></div><div class="chip"></div><div class="chip"></div><div class="chip"></div>
+          </div>
+          <div class="attach-box" style="height:86px"></div>
+          <div class="button-row"><div class="tiny-button"></div><div class="tiny-button"></div><div class="submit-preview"></div></div>
+        </div>
+        <div class="feed-preview" style="grid-template-columns:1fr 1fr">
+          <div class="note-preview paper-peach">
+            <div class="note-head"><div class="avatar-dot" style="background:#dc2626"></div><div class="field-line short"></div></div>
+            <div class="field-line"></div>
+            <div class="media-preview"></div>
+          </div>
+          <div class="note-preview paper-mint">
+            <div class="note-head"><div class="avatar-dot" style="background:#0f766e"></div><div class="field-line short"></div></div>
+            <div class="field-line mid"></div>
+            <div class="comment-preview"><div class="field-line short"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 넓은 프로토타입</h3>
+      <p>첨부 미리보기, 연결 끊김, 에러, 댓글 작성기까지 더 많이 넣습니다. 보기에는 풍부하지만 첫 구현 범위가 커집니다.</p>
+    </div>
+  </div>
+</div>

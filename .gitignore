@@ -10,3 +10,6 @@ figma-calendar/supabase-config.js
 figma-calendar/verification-*.png
 stock-alarm/node_modules
 stock-alarm/dist
+stock-alarm/.env
+stock-alarm/.env.local
+stock-alarm/.env.*.local
