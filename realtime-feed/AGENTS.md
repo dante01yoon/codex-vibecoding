@@ -14,8 +14,25 @@
 
 - `DESIGN.md`: UI/UX 디자인 방향, 컬러, 타이포그래피, 간격, 카드/폼/댓글/상태 패턴의 필수 기준입니다.
 - `docs/superpowers/specs/2026-05-10-realtime-guestbook-design.md`: 제품 요구사항, 사용자 흐름, 데이터 모델, Supabase 연동, realtime 동작, 보안 정책 기준입니다.
+- `.agents/skills/guestbook-memory-bank/SKILL.md`: 기능 수정, 구현, 세션 재개, 메모리 정리가 필요할 때 따라야 하는 메모리 뱅크 절차입니다.
+- `.memory-bank/project-brief.md`: 안정적인 프로젝트 요약, 대상 사용자, 범위, 비범위입니다.
+- `.memory-bank/active-context.md`: 현재 작업 초점, 최근 변경, 다음 세션이 알아야 할 내용입니다.
+- `.memory-bank/progress.md`: 완료, 진행 중, blocked, 다음 작업 상태입니다.
+- `.memory-bank/decision-log.md`: 오래 유지해야 할 결정과 이유입니다.
+- `.memory-bank/next-actions.md`: 바로 이어서 집을 수 있는 작은 작업 목록입니다.
+- `.memory-bank/verification-log.md`: 실행한 검증, 수동 확인, 남은 검증 공백입니다.
 
-특히 UI, React component, layout, copy, state, Supabase integration을 수정하기 전에는 두 문서를 모두 확인합니다.
+특히 UI, React component, layout, copy, state, Supabase integration을 수정하기 전에는 `DESIGN.md`와 PRD 스펙 문서를 모두 확인합니다.
+
+## Memory Bank Workflow
+
+추가 기능 수정 또는 구현이 필요하면 먼저 `guestbook-memory-bank` 스킬 문서인 `.agents/skills/guestbook-memory-bank/SKILL.md`를 참조합니다.
+
+그 다음 코드 수정 계획을 세우기 전에 `.memory-bank/`의 핵심 문서를 읽어 현재 상태를 확인합니다. 메모리 뱅크 문서가 없다면 가능한 문서만 읽고 계속 진행하되, 메모리 설정이나 업데이트가 작업 범위라면 누락된 파일을 보강합니다.
+
+메모리 뱅크를 사용하는 구현 작업에서는 `.memory-bank/tasks/` 아래에 작은 task card를 만들거나 갱신합니다. 작업이 끝나면 필요한 범위에서 `active-context.md`, `progress.md`, `decision-log.md`, `next-actions.md`, `verification-log.md`를 짧게 업데이트합니다.
+
+메모리 뱅크에는 password, API key, access token, Supabase service role key, `.env` 값 같은 secret을 기록하지 않습니다.
 
 ## Product Scope
 

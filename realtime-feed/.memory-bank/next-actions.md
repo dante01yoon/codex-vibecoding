@@ -1,6 +1,6 @@
 # Next Actions
 
-- `auth`, `posts`, `comments`, `attachments` 서비스 모듈의 인터페이스를 먼저 설계한다.
-- 샘플 데이터 shape를 Supabase normalized response shape와 맞춘다.
-- 작성 폼 검증과 첨부 검증을 테스트 가능한 helper로 분리한다.
-- 실제 Supabase 연결 전 공식 문서와 RLS/Storage 정책을 확인한다.
+- 브라우저 2개로 이미지/그림 첨부 업로드, 펼쳐진 댓글 Realtime, 본인 삭제 권한을 추가 확인한다.
+- Supabase Dashboard RLS Tester로 실제 프로젝트 정책을 한 번 더 눈으로 확인한다.
+- 대화/IDE 컨텍스트에 노출된 DB password를 rotate하고 로컬 `.env`를 새 값으로 갱신한다.
+- 로컬 검증이 끝나면 `npx supabase stop`으로 컨테이너를 정리한다.

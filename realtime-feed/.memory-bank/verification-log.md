@@ -2,13 +2,93 @@
 
 ## 2026-05-11
 
+- 통과: `AGENTS.md`, `DESIGN.md`, PRD 스펙, `.memory-bank/` 핵심 문서 읽기
+- 통과: `git diff --check`
 - 통과: `npx @google/design.md lint DESIGN.md`
 - 통과: `npm run build`
+- 통과: `curl -I http://127.0.0.1:5175/`
+- 통과: `npx playwright screenshot --browser=chromium --viewport-size=1280,900 http://127.0.0.1:5175/ .playwright-mcp/realtime-feed-supabase-desktop.png`
+- 통과: `npx playwright screenshot --browser=chromium --viewport-size=390,844 http://127.0.0.1:5175/ .playwright-mcp/realtime-feed-supabase-mobile.png`
 - 통과: 브라우저 1280px 화면에서 작성 패널, 피드 패널, 포스트잇 카드 표시 확인
 - 통과: 브라우저 390px 화면에서 가로 넘침 없음 확인
 - 통과: 샘플 작성, 댓글 추가, 본인 글 삭제 흐름 확인
 - 통과: 실시간 연결 끊김 상태에서 기존 피드 유지 확인
+- 통과: `npm run build` 재실행
+- 통과: `git diff --check` 재실행
+- 통과: `npx @google/design.md lint DESIGN.md` 재실행
+- 통과: Supabase CLI `2.98.2` 확인 및 `db lint --help`로 현재 로컬 lint 명령 옵션 확인
+- 통과: 익명 인증, Data API grants, RLS, Storage 정책, Realtime publication 정적 검토
+- 보강 필요: 현재 테이블 `update` grant는 작성자 본인이 `deleted_at` 외 컬럼도 갱신할 수 있어, 삭제 전용 의도라면 column-level update grant로 좁혀야 한다.
+- 실패/미실행: `npx supabase migration list --local`은 로컬 Supabase Postgres가 실행 중이 아니어서 `127.0.0.1:54322` 연결 실패
+- 실패/미실행: `npx supabase db lint --local`은 로컬 Supabase Postgres가 실행 중이 아니어서 `127.0.0.1:54322` 연결 실패
+- 통과: Supabase changelog에서 2026-04-28 Data API 자동 노출 변경 확인
+- 통과: `npx supabase init`으로 `supabase/config.toml` 생성
+- 통과: `supabase/config.toml`에서 로컬 `enable_anonymous_sign_ins = true` 설정
+- 통과: `guestbook_posts`, `guestbook_comments`의 `update` grant를 `deleted_at` 컬럼으로 축소
+- 통과: 로컬 Supabase 설정 변경 후 `npm run build`
+- 통과: 로컬 Supabase 설정 변경 후 `git diff --check`
+- 실패/미실행: `npx supabase start`는 Docker daemon이 준비되지 않아 실패
+- 실패/미실행: Docker Desktop 실행을 시도했지만 3분 안에 docker socket이 준비되지 않았다.
+- 통과: Docker Desktop 실행 후 `npx supabase start`
+- 통과: `npx supabase db reset`
+- 통과: `npx supabase migration list --local`
+- 통과: `npx supabase db lint --local --fail-on error`
+- 통과: `npx supabase db advisors --local`
+- 통과: RLS 활성화, authenticated SELECT, 컬럼 단위 INSERT, `deleted_at` 전용 UPDATE 권한 확인
+- 통과: `supabase_realtime` publication에 `guestbook_posts`, `guestbook_comments` 등록 확인
+- 통과: Supabase JS 스모크 테스트로 익명 로그인, 게시글/댓글 생성, 타인 삭제 차단, 비허용 컬럼 업데이트 차단, Storage 소유 경로 정책 확인
+- 통과: 로컬 Supabase `.env` 연결 후 `npm run build`
+- 통과: `http://127.0.0.1:5176/` desktop/mobile screenshot에서 로컬 Supabase 모드 UI 확인
+- 통과: hosted Supabase 연결 가이드를 `supabase/README.md`에 추가
+- 통과: hosted Supabase 연결을 다음 작업 카드로 기록
+- 통과: `npx supabase login`
+- 통과: `npx supabase link --project-ref znykttqnogkmglbpeint`
+- 통과: `npx supabase db push --dry-run`은 `20260511010100_create_guestbook_backend.sql` 1개 적용 예정으로 확인
+- 통과: `npx supabase db push --help`로 현재 CLI의 remote password 옵션 확인
+- 통과: `supabase/README.md`에 temp role/circuit breaker 발생 시 안전한 재시도 방법 추가
+- 통과: `.env`의 `SUPABASE_DB_PASSWORD`를 읽는 `scripts/supabase-db-push.mjs` 추가
+- 통과: `node --check scripts/supabase-db-push.mjs`
+- 통과: 비밀번호 없는 `npm run supabase:db:push`가 원격 접속 전에 중단됨
+- 통과: helper script 추가 후 `npm run build`
+- 통과: helper script 추가 후 `git diff --check`
+- 통과: `.env`에 `SUPABASE_DB_PASSWORD`가 비어 있지 않게 들어간 것은 확인함. 실제 값은 확인하거나 기록하지 않음.
+- 실패/미실행: `npm run supabase:db:push`는 `postgres` 사용자 password authentication failed로 중단됨. 원격 DB에는 migration이 적용되지 않음.
+- 실패/미실행: `npx supabase migration list --linked`는 temp role 인증 실패 후 circuit breaker로 중단됨
+- 실패/미실행: `npx supabase db push`는 원격 적용 전 temp role circuit breaker로 중단됨. CLI가 `SUPABASE_DB_PASSWORD` 설정을 요구했으며 migration은 아직 원격 DB에 적용되지 않음
+- 통과: DB password 재설정 후 `npx supabase link --project-ref znykttqnogkmglbpeint`로 IPv4/pooler 연결 재설정
+- 통과: `npm run supabase:db:push`로 `20260511010100_create_guestbook_backend.sql` 원격 적용
+- 통과: `npx supabase migration list --linked`에서 `20260511010100` local/remote 일치 확인
+- 보강 필요: `npx supabase db advisors --linked`가 `guestbook-media` public bucket broad SELECT policy 경고를 보고함
+- 통과: `npx supabase migration new restrict_guestbook_media_listing`
+- 통과: `20260511021759_restrict_guestbook_media_listing.sql`로 broad SELECT policy 제거
+- 통과: `npm run supabase:db:push:dry-run`에서 후속 migration 1개 적용 예정 확인
+- 통과: `npm run supabase:db:push`로 `20260511021759_restrict_guestbook_media_listing.sql` 원격 적용
+- 통과: `npx supabase migration list --linked`에서 migration 2개 local/remote 일치 확인
+- 통과: `npx supabase db advisors --linked` 결과 `No issues found`
+- 통과: `npx supabase config push --project-ref znykttqnogkmglbpeint --yes`로 hosted Auth anonymous sign-ins 활성화
+- 통과: hosted smoke에서 익명 Auth, Data API insert, Storage upload/public URL, owner-only path policy, 비허용 update 차단, 타인 삭제 차단 확인
+- 보강 필요: hosted Realtime smoke가 명시적 Realtime auth token 동기화 없이는 timeout
+- 통과: hosted Realtime smoke가 `supabase.realtime.setAuth(access_token)` 명시 호출 시 INSERT 이벤트 수신
+- 통과: `src/lib/supabase/auth.js`에서 익명 세션 확보 후 Realtime auth token 동기화 보강
+- 통과: `npx supabase db reset`으로 로컬 migration 2개 적용 확인
+- 통과: `npx supabase migration list --local`
+- 통과: `npx supabase db advisors --local` 결과 `No issues found`
+- 통과: Realtime auth 보강 후 `npm run build`
+- 통과: Realtime auth 보강 후 `git diff --check`
+- 실패/확인: hosted URL과 다른 프로젝트/로컬 publishable key 조합 때문에 브라우저에서 Auth signup 및 REST 요청이 401로 실패함
+- 통과: hosted publishable key와 `.env` key prefix를 비교해 불일치 확인. key 전체는 출력하지 않음
+- 통과: `.env`의 `VITE_SUPABASE_PUBLISHABLE_KEY`를 hosted publishable key로 갱신하고 일치 확인
+- 실패/확인: Supabase 모드 초기 expanded post가 샘플 `post-102`라서 hosted `guestbook_comments.post_id` uuid 조회가 400으로 실패함
+- 통과: Supabase configured 상태에서는 초기 posts/comments/expandedPostId를 샘플이 아니라 빈 상태로 시작하도록 수정
+- 통과: key와 초기 상태 수정 후 `npm run build`
+- 통과: key와 초기 상태 수정 후 `git diff --check`
+- 통과: 브라우저 콘솔에서 401/400 에러 없음 확인
+- 통과: 실제 앱 UI에서 hosted 새 게시글 작성 확인
+- 통과: 두 번째 탭에서 hosted 새 게시글 Realtime 반영 확인
+- 통과: 테스트 게시글/댓글 soft-delete 정리 후 active test post 0개 확인
 
 ## Known Gaps
 
-- Supabase 연결, 실제 업로드, 실제 Realtime 구독은 아직 검증 대상이 아니다.
+- 실제 앱 UI에서 첨부 업로드와 펼쳐진 댓글 Realtime은 아직 추가 수동 확인이 남아 있다.
+- Supabase Dashboard RLS Tester는 아직 수동 확인하지 못했다.
+- DB password가 대화/IDE 컨텍스트에 노출되었으므로 작업 종료 후 rotate가 필요하다.
