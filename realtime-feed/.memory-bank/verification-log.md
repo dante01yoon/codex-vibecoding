@@ -86,9 +86,36 @@
 - 통과: 실제 앱 UI에서 hosted 새 게시글 작성 확인
 - 통과: 두 번째 탭에서 hosted 새 게시글 Realtime 반영 확인
 - 통과: 테스트 게시글/댓글 soft-delete 정리 후 active test post 0개 확인
+- 통과: `npx --yes vercel@latest whoami` 결과 Vercel CLI 인증 확인
+- 통과: `npx --yes vercel@latest teams list --format json`에서 `dante01yoons-projects` scope 확인
+- 통과: `.vercel/project.json` 또는 `.vercel/repo.json`이 없음을 확인
+- 통과/중단: `npx --yes vercel@latest link --repo --scope dante01yoons-projects`는 같은 repo의 기존 `figma-calendar` 프로젝트만 제안해 잘못 연결하지 않고 중단함
+- 통과: `npx --yes vercel@latest link --yes --scope dante01yoons-projects --project realtime-feed`로 Vercel 프로젝트 생성 및 `.vercel/project.json` 링크
+- 통과: Vercel link가 `.gitignore`에 `.vercel`을 추가함
+- 통과: Vercel 배포 전 `npm run build`
+- 통과: Vercel 배포 전 `git diff --check`
+- 통과: Vercel 배포 전 `npx @google/design.md lint DESIGN.md`
+- 통과: `.env`에서 공개 가능한 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`만 읽어 Vercel build env로 주입함. 실제 값은 기록하지 않음
+- 통과: `npx --yes vercel@latest deploy . -y --no-wait --scope dante01yoons-projects --target preview --archive=tgz ...`
+- 통과: `npx --yes vercel@latest inspect https://realtime-feed-1qwf08rnl-dante01yoons-projects.vercel.app --wait --timeout 3m --scope dante01yoons-projects --format json` 결과 `target: preview`, `readyState: READY`
+- 확인 필요: 첫 deploy 명령이 `--prod` 없이도 production target으로 처리되어 `https://realtime-feed-guhg5b7xi-dante01yoons-projects.vercel.app` 및 `realtime-feed.vercel.app` alias가 생성됨
+- 실패/확인: 기존 RLS 정책에서 owner soft-delete update가 `42501`로 실패함
+- 통과: Supabase changelog와 RLS 문서 확인. UPDATE에는 대응되는 SELECT policy가 필요함을 확인
+- 통과: `npx supabase migration new allow_owner_soft_deleted_select`
+- 통과: `20260511105059_allow_owner_soft_deleted_select.sql`에서 active row 또는 owner soft-deleted row를 허용하는 combined SELECT policy 추가
+- 통과: `npx supabase db reset`
+- 통과: `npx supabase db advisors --local` 결과 `No issues found`
+- 통과: `npm run supabase:db:push:dry-run`에서 `20260511105059_allow_owner_soft_deleted_select.sql` 1개 적용 예정 확인
+- 통과: `npm run supabase:db:push`로 hosted DB에 soft-delete RLS 보강 migration 적용
+- 통과: `npx supabase migration list --linked`에서 migration 3개 local/remote 일치 확인
+- 참고: `npx supabase db advisors --linked`는 anonymous guestbook 앱 의도와 맞물린 anonymous access warning 및 password/MFA project warning을 보고함
+- 통과: API smoke에서 owner post/comment delete 성공, other session delete 차단, 삭제 후 active row 0개 확인
+- 통과: 이전 실패 재현 중 생성된 테스트 post 2개를 관리자 DB query로 soft-delete 정리
+- 통과: public Vercel alias `https://realtime-feed.vercel.app`에서 UI 작성 후 삭제 버튼 클릭 성공, console error 0개 확인
 
 ## Known Gaps
 
 - 실제 앱 UI에서 첨부 업로드와 펼쳐진 댓글 Realtime은 아직 추가 수동 확인이 남아 있다.
 - Supabase Dashboard RLS Tester는 아직 수동 확인하지 못했다.
+- Vercel project env에는 아직 값이 저장되어 있지 않다. 이번 preview deployment는 일회성 build env 주입으로 만들었다.
 - DB password가 대화/IDE 컨텍스트에 노출되었으므로 작업 종료 후 rotate가 필요하다.

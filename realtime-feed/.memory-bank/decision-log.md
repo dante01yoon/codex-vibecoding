@@ -109,3 +109,15 @@ Hosted DB는 `uuid` id를 사용한다. Supabase 모드에서 샘플 id인 `post
 ### Consequence
 
 `src/App.jsx`는 Supabase 환경 변수가 있으면 초기 `posts`, `commentsByPost`, `expandedPostId`를 빈 상태로 시작하고, 실제 `listPosts()` 결과를 받은 뒤 live feed를 보여준다. 샘플 데이터는 Supabase 환경 변수가 없을 때만 초기 화면에 사용한다.
+
+### Decision
+
+게시글/댓글 SELECT policy는 active row를 모두 허용하고, 작성자 본인은 자기 soft-deleted row도 읽을 수 있게 한다.
+
+### Reason
+
+삭제는 `deleted_at`만 업데이트하는 soft-delete 방식이다. Supabase/Postgres RLS에서 UPDATE는 대응되는 SELECT policy가 필요하고, 업데이트 후 row가 `deleted_at is not null`이 되면 active-only SELECT policy를 통과하지 못해 owner delete도 막힌다.
+
+### Consequence
+
+앱 조회는 계속 `.is('deleted_at', null)` 필터를 사용해 삭제된 row를 화면에서 숨긴다. RLS는 owner가 자기 soft-deleted row를 읽을 수 있도록 허용해 soft-delete UPDATE와 반환 검증이 동작하게 한다.

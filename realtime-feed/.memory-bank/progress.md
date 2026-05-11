@@ -29,6 +29,10 @@
 - hosted URL과 publishable key 불일치로 생긴 브라우저 401 문제를 해결했다.
 - Supabase 모드 초기 expanded post가 샘플 id라 hosted 댓글 조회 400을 만들던 문제를 해결했다.
 - 실제 앱 UI에서 hosted 새 게시글 작성과 두 번째 탭 Realtime 반영을 확인했다.
+- Vercel `dante01yoons-projects/realtime-feed` 프로젝트를 만들고 `.vercel/project.json`으로 링크했다.
+- Vercel preview deployment를 만들고 `READY` 상태를 확인했다.
+- 삭제 액션 실패를 RLS soft-delete SELECT policy 문제로 확인하고 hosted DB migration으로 수정했다.
+- public Vercel UI에서 작성 후 삭제 버튼 동작을 확인했다.
 
 ## in progress
 
@@ -40,6 +44,8 @@
 
 ## next
 
-- 브라우저 2개로 첨부, 펼쳐진 댓글 Realtime과 본인 삭제 권한을 추가 수동 검증한다.
+- 브라우저 2개로 첨부와 펼쳐진 댓글 Realtime을 추가 수동 검증한다.
+- Vercel Git integration과 preview env 저장이 필요하면 Dashboard에서 repo root를 `realtime-feed`로 연결하거나 별도 CLI/API 작업으로 설정한다.
+- 첫 CLI deploy가 production target으로 만들어진 alias를 유지할지 정리할지 확인한다.
 - 작업 종료 후 노출된 DB password를 rotate하고 `.env`도 새 값으로 갱신한다.
 - 로컬 작업이 끝나면 `npx supabase stop`으로 컨테이너를 정리한다.
