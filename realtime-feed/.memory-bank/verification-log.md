@@ -1,5 +1,14 @@
 # Verification Log
 
+## 2026-05-12
+
+- 통과: `npm run video:still`로 Remotion 중간 프레임 `output/video/realtime-guestbook-promo-frame.png` 생성
+- 통과: `npm run video:render`로 `output/video/realtime-guestbook-promo.mp4` 생성
+- 통과: `mdls -name kMDItemDurationSeconds -name kMDItemPixelWidth -name kMDItemPixelHeight -name kMDItemCodecs output/video/realtime-guestbook-promo.mp4` 결과 `1920x1080`, 약 `30.015`초, H.264 MP4 확인
+- 통과: Remotion still로 `check-frame-060.png`, `check-frame-270.png`, `check-frame-810.png` 대표 프레임 생성 후 시각 확인
+- 통과: 홍보 영상 작업 후 `npm run build`
+- 통과: 홍보 영상 작업 후 `git diff --check`
+
 ## 2026-05-11
 
 - 통과: `AGENTS.md`, `DESIGN.md`, PRD 스펙, `.memory-bank/` 핵심 문서 읽기

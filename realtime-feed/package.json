@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "video:studio": "remotion studio src/remotion/index.jsx",
+    "video:still": "remotion still src/remotion/index.jsx RealtimeGuestbookPromo --frame=450 --scale=0.5 --output=output/video/realtime-guestbook-promo-frame.png",
+    "video:render": "remotion render src/remotion/index.jsx RealtimeGuestbookPromo output/video/realtime-guestbook-promo.mp4",
     "supabase:db:push": "node scripts/supabase-db-push.mjs",
     "supabase:db:push:dry-run": "node scripts/supabase-db-push.mjs --dry-run"
   },
@@ -17,5 +20,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vite": "^6.0.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.460",
+    "remotion": "^4.0.460"
   }
 }
