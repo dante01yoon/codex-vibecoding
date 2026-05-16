@@ -35,6 +35,8 @@
 - public Vercel UI에서 작성 후 삭제 버튼 동작을 확인했다.
 - Realtime Guestbook 홍보 영상을 Remotion으로 제작했다.
 - 생성 이미지 3장을 `img/`와 `public/img/`에 보관하고, 최종 MP4를 `output/video/realtime-guestbook-promo.mp4`로 렌더했다.
+- 랜딩 페이지 컴포넌트를 추가하고 CTA에서 기존 방명록 영역으로 스크롤하도록 연결했다.
+- 랜딩 히어로, 기능 소개, 사용 장면 섹션의 390px/1280px 반응형 스타일을 추가했다.
 
 ## in progress
 

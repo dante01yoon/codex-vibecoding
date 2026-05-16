@@ -128,3 +128,9 @@
 - Supabase Dashboard RLS Tester는 아직 수동 확인하지 못했다.
 - Vercel project env에는 아직 값이 저장되어 있지 않다. 이번 preview deployment는 일회성 build env 주입으로 만들었다.
 - DB password가 대화/IDE 컨텍스트에 노출되었으므로 작업 종료 후 rotate가 필요하다.
+
+## 2026-05-16 랜딩 페이지 추가 검증
+
+- 통과: `npx @google/design.md lint DESIGN.md` → errors 0, warnings 0, infos 0.
+- 통과: `npm run build` → Vite production build 성공.
+- 환경 제한: `npx playwright install chromium` → `https://cdn.playwright.dev/...` 다운로드가 403 `Domain forbidden`으로 실패해 Playwright 스크린샷 생성 불가.

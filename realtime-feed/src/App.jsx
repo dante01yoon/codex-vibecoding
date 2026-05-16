@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import LandingPage from './components/LandingPage'
 import {
   ChevronDown,
   ChevronUp,
@@ -80,6 +81,7 @@ function App() {
   const [feedError, setFeedError] = useState('')
   const [commentStatus, setCommentStatus] = useState('idle')
   const [commentThreadError, setCommentThreadError] = useState('')
+  const guestbookRef = useRef(null)
 
   const isLiveMode = isSupabaseConfigured && sessionStatus === 'ready'
   const isComposerDisabled = isSupabaseConfigured && sessionStatus !== 'ready'
@@ -417,9 +419,21 @@ function App() {
     )
   }
 
+  function scrollToGuestbook() {
+    guestbookRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <main className="app-shell">
-      <section className="intro-band" aria-labelledby="guestbook-title">
+      <LandingPage onStart={scrollToGuestbook} />
+
+      <section
+        className="intro-band"
+        id="guestbook"
+        ref={guestbookRef}
+        aria-labelledby="guestbook-title"
+        tabIndex={-1}
+      >
         <div>
           <p className="eyebrow">실시간 방명록</p>
           <h1 id="guestbook-title">오늘의 메모를 붙여 주세요</h1>

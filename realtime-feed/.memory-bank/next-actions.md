@@ -7,3 +7,4 @@
 - Supabase Dashboard RLS Tester로 실제 프로젝트 정책을 한 번 더 눈으로 확인한다.
 - 대화/IDE 컨텍스트에 노출된 DB password를 rotate하고 로컬 `.env`를 새 값으로 갱신한다.
 - 로컬 검증이 끝나면 `npx supabase stop`으로 컨테이너를 정리한다.
+- 브라우저가 설치된 환경에서 390px/1280px 실제 스크린샷으로 랜딩 페이지와 CTA 스크롤 동작을 수동 확인한다.
