@@ -52,3 +52,10 @@
 - 첫 CLI deploy가 production target으로 만들어진 alias를 유지할지 정리할지 확인한다.
 - 작업 종료 후 노출된 DB password를 rotate하고 `.env`도 새 값으로 갱신한다.
 - 로컬 작업이 끝나면 `npx supabase stop`으로 컨테이너를 정리한다.
+
+## 2026-05-16
+
+- done: 따뜻한 포스트잇 톤의 랜딩 섹션을 별도 React 컴포넌트로 추가했다.
+- done: “방명록 남기기”, “실시간 피드 보기” CTA가 기존 앱 섹션으로 스크롤되게 연결했다.
+- done: `npx @google/design.md lint DESIGN.md`와 `npm run build`를 통과했다.
+- blocked: Playwright 브라우저 다운로드가 CDN 403으로 막혀 390px/1280px 스크린샷 생성은 완료하지 못했다.

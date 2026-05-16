@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import GuestbookLanding from './components/GuestbookLanding'
 import {
   ChevronDown,
   ChevronUp,
@@ -81,8 +82,15 @@ function App() {
   const [commentStatus, setCommentStatus] = useState('idle')
   const [commentThreadError, setCommentThreadError] = useState('')
 
+  const composerSectionRef = useRef(null)
+  const feedSectionRef = useRef(null)
+
   const isLiveMode = isSupabaseConfigured && sessionStatus === 'ready'
   const isComposerDisabled = isSupabaseConfigured && sessionStatus !== 'ready'
+
+  function scrollToSection(sectionRef) {
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -419,6 +427,11 @@ function App() {
 
   return (
     <main className="app-shell">
+      <GuestbookLanding
+        onWriteClick={() => scrollToSection(composerSectionRef)}
+        onFeedClick={() => scrollToSection(feedSectionRef)}
+      />
+
       <section className="intro-band" aria-labelledby="guestbook-title">
         <div>
           <p className="eyebrow">실시간 방명록</p>
@@ -432,21 +445,27 @@ function App() {
       </section>
 
       <div className="workspace">
-        <GuestbookForm
-          form={form}
-          errors={formErrors}
-          isDisabled={isComposerDisabled}
-          isSubmitting={isSubmitting}
-          sessionStatus={sessionStatus}
-          onSubmit={handleSubmit}
-          onChange={updateForm}
-          onAttachmentError={(message) =>
-            setFormErrors((current) => ({ ...current, attachment: message }))
-          }
-          onResetAttachment={resetAttachment}
-        />
+        <div ref={composerSectionRef} className="composer-anchor">
+          <GuestbookForm
+            form={form}
+            errors={formErrors}
+            isDisabled={isComposerDisabled}
+            isSubmitting={isSubmitting}
+            sessionStatus={sessionStatus}
+            onSubmit={handleSubmit}
+            onChange={updateForm}
+            onAttachmentError={(message) =>
+              setFormErrors((current) => ({ ...current, attachment: message }))
+            }
+            onResetAttachment={resetAttachment}
+          />
+        </div>
 
-        <section className="feed-panel" aria-labelledby="feed-title">
+        <section
+          ref={feedSectionRef}
+          className="feed-panel"
+          aria-labelledby="feed-title"
+        >
           <div className="feed-heading">
             <div>
               <p className="section-kicker">{postCountLabel}</p>
