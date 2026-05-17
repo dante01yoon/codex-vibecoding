@@ -651,6 +651,17 @@ function AttachmentControls({
   onAttachmentError,
   onResetAttachment,
 }) {
+  const hasImage =
+    form.attachmentMode === 'image' && Boolean(form.imagePreviewUrl)
+  const selectedLabel =
+    form.attachmentMode === 'image'
+      ? form.imageFileName || '이미지 선택 중'
+      : form.attachmentMode === 'drawing'
+        ? form.drawingDataUrl
+          ? '그림 첨부됨'
+          : '그림 그리는 중'
+        : '첨부 없음'
+
   function handleModeChange(nextMode) {
     if (form.imagePreviewUrl) {
       URL.revokeObjectURL(form.imagePreviewUrl)
@@ -693,13 +704,21 @@ function AttachmentControls({
   return (
     <div className="attachment-box">
       <fieldset className="field-group">
-        <legend>첨부</legend>
-        <div className="segmented-control">
+        <legend className="sr-only">첨부</legend>
+        <div className="attachment-label-row">
+          <span className="attachment-title">첨부</span>
+          <span className="attachment-state" aria-live="polite">
+            {selectedLabel}
+          </span>
+        </div>
+        <div className="segmented-control attachment-mode-group">
           <button
             type="button"
             data-selected={form.attachmentMode === 'none'}
             disabled={isDisabled}
             onClick={() => handleModeChange('none')}
+            aria-pressed={form.attachmentMode === 'none'}
+            title="첨부 없이 작성"
           >
             <CircleSlash size={16} aria-hidden="true" />
             없음
@@ -709,6 +728,8 @@ function AttachmentControls({
             data-selected={form.attachmentMode === 'image'}
             disabled={isDisabled}
             onClick={() => handleModeChange('image')}
+            aria-pressed={form.attachmentMode === 'image'}
+            title="이미지 첨부"
           >
             <ImageIcon size={16} aria-hidden="true" />
             이미지
@@ -718,6 +739,8 @@ function AttachmentControls({
             data-selected={form.attachmentMode === 'drawing'}
             disabled={isDisabled}
             onClick={() => handleModeChange('drawing')}
+            aria-pressed={form.attachmentMode === 'drawing'}
+            title="그림 첨부"
           >
             <Paintbrush size={16} aria-hidden="true" />
             그리기
@@ -727,19 +750,46 @@ function AttachmentControls({
 
       {form.attachmentMode === 'image' && (
         <div className="upload-area">
-          <label className="upload-dropzone" htmlFor="imageUpload">
-            <Upload size={20} aria-hidden="true" />
-            <span>{form.imageFileName || '이미지 파일 선택'}</span>
+          <label
+            className="upload-dropzone"
+            htmlFor="imageUpload"
+            data-has-file={hasImage}
+          >
+            {hasImage ? (
+              <ImageIcon size={20} aria-hidden="true" />
+            ) : (
+              <Upload size={20} aria-hidden="true" />
+            )}
+            <span>{hasImage ? '다른 이미지로 바꾸기' : '이미지 파일 선택'}</span>
+            <small>JPG, PNG, WEBP · 4MB 이하</small>
             <input
               id="imageUpload"
               type="file"
               accept="image/jpeg,image/png,image/webp"
               disabled={isDisabled}
               onChange={handleFileChange}
+              aria-describedby={error ? 'attachment-error' : undefined}
             />
           </label>
-          {form.imagePreviewUrl && (
-            <div className="preview-frame">
+          {hasImage && (
+            <div className="selected-attachment-panel">
+              <div className="selected-attachment-meta">
+                <ImageIcon size={16} aria-hidden="true" />
+                <span>{form.imageFileName}</span>
+              </div>
+              <button
+                className="text-button compact-text-button"
+                type="button"
+                disabled={isDisabled}
+                onClick={onResetAttachment}
+              >
+                <X size={15} aria-hidden="true" />
+                제거
+              </button>
+            </div>
+          )}
+          {hasImage && (
+            <div className="preview-frame" aria-label="선택한 이미지 미리보기">
               <img src={form.imagePreviewUrl} alt="작성자가 첨부한 이미지" />
               <button
                 className="icon-button preview-remove"
@@ -761,11 +811,12 @@ function AttachmentControls({
           value={form.drawingDataUrl}
           isDisabled={isDisabled}
           onChange={(drawingDataUrl) => onChange({ drawingDataUrl })}
+          onRemove={onResetAttachment}
         />
       )}
 
       {error && (
-        <p className="field-error" role="alert">
+        <p className="field-error" id="attachment-error" role="alert">
           {error}
         </p>
       )}
@@ -773,11 +824,12 @@ function AttachmentControls({
   )
 }
 
-function DrawingPad({ value, isDisabled, onChange }) {
+function DrawingPad({ value, isDisabled, onChange, onRemove }) {
   const canvasRef = useRef(null)
   const [brushColor, setBrushColor] = useState('#1F2933')
   const [isErasing, setIsErasing] = useState(false)
   const isDrawingRef = useRef(false)
+  const activeToolLabel = isErasing ? '지우개 사용 중' : `${brushColor} 펜 사용 중`
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -799,13 +851,14 @@ function DrawingPad({ value, isDisabled, onChange }) {
 
   function startDrawing(event) {
     if (isDisabled) return
+    event.preventDefault()
 
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
     const point = pointFromEvent(event)
 
     isDrawingRef.current = true
-    canvas.setPointerCapture(event.pointerId)
+    canvas.setPointerCapture?.(event.pointerId)
     context.beginPath()
     context.moveTo(point.x, point.y)
     context.lineTo(point.x + 0.1, point.y + 0.1)
@@ -818,6 +871,7 @@ function DrawingPad({ value, isDisabled, onChange }) {
 
   function draw(event) {
     if (!isDrawingRef.current) return
+    event.preventDefault()
 
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
@@ -831,10 +885,13 @@ function DrawingPad({ value, isDisabled, onChange }) {
 
   function stopDrawing(event) {
     if (!isDrawingRef.current) return
+    event.preventDefault()
 
     const canvas = canvasRef.current
     isDrawingRef.current = false
-    canvas.releasePointerCapture(event.pointerId)
+    if (canvas.hasPointerCapture?.(event.pointerId)) {
+      canvas.releasePointerCapture(event.pointerId)
+    }
     onChange(canvas.toDataURL('image/png'))
   }
 
@@ -850,42 +907,62 @@ function DrawingPad({ value, isDisabled, onChange }) {
 
   return (
     <div className="drawing-box">
+      <div className="drawing-header">
+        <span aria-live="polite">{activeToolLabel}</span>
+        <button
+          className="text-button compact-text-button"
+          type="button"
+          disabled={isDisabled}
+          onClick={onRemove}
+        >
+          <X size={15} aria-hidden="true" />
+          첨부 제거
+        </button>
+      </div>
       <div className="drawing-toolbar" aria-label="그림 도구">
-        {['#1F2933', '#F9735B', '#0F9F8F', '#7C3AED'].map((color) => (
+        <div className="drawing-color-group" aria-label="펜 색상">
+          {['#1F2933', '#F9735B', '#0F9F8F', '#7C3AED'].map((color) => (
+            <button
+              key={color}
+              className="mini-swatch"
+              type="button"
+              style={{ '--swatch-color': color }}
+              data-selected={!isErasing && brushColor === color}
+              disabled={isDisabled}
+              onClick={() => {
+                setBrushColor(color)
+                setIsErasing(false)
+              }}
+              aria-label={`${color} 펜 선택`}
+              aria-pressed={!isErasing && brushColor === color}
+              title={`${color} 펜 선택`}
+            />
+          ))}
+        </div>
+        <div className="drawing-action-group">
           <button
-            key={color}
-            className="mini-swatch"
+            className="tool-button"
             type="button"
-            style={{ '--swatch-color': color }}
-            data-selected={!isErasing && brushColor === color}
+            data-selected={isErasing}
             disabled={isDisabled}
-            onClick={() => {
-              setBrushColor(color)
-              setIsErasing(false)
-            }}
-            aria-label={`${color} 펜 선택`}
-            title={`${color} 펜 선택`}
-          />
-        ))}
-        <button
-          className="tool-button"
-          type="button"
-          data-selected={isErasing}
-          disabled={isDisabled}
-          onClick={() => setIsErasing((current) => !current)}
-        >
-          <Eraser size={16} aria-hidden="true" />
-          지우개
-        </button>
-        <button
-          className="tool-button"
-          type="button"
-          disabled={isDisabled}
-          onClick={clearCanvas}
-        >
-          <RotateCcw size={16} aria-hidden="true" />
-          초기화
-        </button>
+            onClick={() => setIsErasing((current) => !current)}
+            aria-pressed={isErasing}
+            title="지우개"
+          >
+            <Eraser size={16} aria-hidden="true" />
+            지우개
+          </button>
+          <button
+            className="tool-button"
+            type="button"
+            disabled={isDisabled}
+            onClick={clearCanvas}
+            title="그림 초기화"
+          >
+            <RotateCcw size={16} aria-hidden="true" />
+            초기화
+          </button>
+        </div>
       </div>
       <canvas
         ref={canvasRef}
@@ -896,7 +973,9 @@ function DrawingPad({ value, isDisabled, onChange }) {
         onPointerMove={draw}
         onPointerUp={stopDrawing}
         onPointerCancel={stopDrawing}
+        onPointerLeave={stopDrawing}
         aria-label="간단한 첨부 그림 그리기"
+        aria-disabled={isDisabled}
       />
     </div>
   )

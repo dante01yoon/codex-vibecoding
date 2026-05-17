@@ -1,5 +1,17 @@
 # Verification Log
 
+## 2026-05-17
+
+- 통과: 첨부/그림 UI 보강 전 `AGENTS.md`, `DESIGN.md`, PRD 스펙, `.agents/skills/guestbook-memory-bank/SKILL.md`, `.memory-bank/` 핵심 문서 읽기
+- 참고: 첫 `npm run build`는 이 worktree에 `node_modules`가 없어 `vite: command not found`로 실패했다.
+- 통과: `npm install` 후 dependency 설치, package 파일 diff 없음
+- 통과: `npm run build`
+- 통과: `git diff --check`
+- 통과: `npx @google/design.md lint DESIGN.md`
+- 통과: Vite dev server `http://127.0.0.1:5178/`에서 1280px 폭 확인. 첨부 모드 버튼 accessible state와 그림 모드 상태 표시 확인, 가로 넘침 없음
+- 통과: Vite dev server `http://127.0.0.1:5178/`에서 390px 폭 확인. 이미지 선택 상태, 그림 상태 `그림 첨부됨`, 캔버스 영역, 가로 넘침 없음
+- 참고: 로컬 UI 확인 후 Vite dev server를 중지했다.
+
 ## 2026-05-12
 
 - 통과: `npm run video:still`로 Remotion 중간 프레임 `output/video/realtime-guestbook-promo-frame.png` 생성
