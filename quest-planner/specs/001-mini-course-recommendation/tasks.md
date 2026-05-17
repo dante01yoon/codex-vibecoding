@@ -12,10 +12,10 @@
 
 **Purpose**: Establish the smallest readable React + Vite app baseline.
 
-- [ ] T001 Create React + Vite package scripts and baseline dependencies in `package.json`
-- [ ] T002 Create the Vite HTML root element in `index.html`
-- [ ] T003 Create the React entry point that renders the app in `src/main.jsx`
-- [ ] T004 Create the beginner-readable app shell and stylesheet entry in `src/App.jsx` and `src/App.css`
+- [X] T001 Create React + Vite package scripts and baseline dependencies in `package.json`
+- [X] T002 Create the Vite HTML root element in `index.html`
+- [X] T003 Create the React entry point that renders the app in `src/main.jsx`
+- [X] T004 Create the beginner-readable app shell and stylesheet entry in `src/App.jsx` and `src/App.css`
 
 ---
 
@@ -25,10 +25,10 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Create fixed input option constants and readable mock mini course data in `src/data/mockQuests.js`
-- [ ] T006 Implement deterministic recommendation filtering and tie-breakers in `src/lib/recommendQuest.js`
-- [ ] T007 [P] Implement latest-only `localStorage` read/write helpers with safe fallback behavior in `src/lib/storage.js`
-- [ ] T008 [P] Define mobile-first base layout, spacing, and reusable responsive card styles in `src/App.css`
+- [X] T005 Create fixed input option constants and readable mock mini course data in `src/data/mockQuests.js`
+- [X] T006 Implement deterministic recommendation filtering and tie-breakers in `src/lib/recommendQuest.js`
+- [X] T007 [P] Implement latest-only `localStorage` read/write helpers with safe fallback behavior in `src/lib/storage.js`
+- [X] T008 [P] Define mobile-first base layout, spacing, and reusable responsive card styles in `src/App.css`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 
@@ -42,10 +42,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Build the fixed-choice input form and missing-field messages in `src/components/QuestForm.jsx`
-- [ ] T010 [P] [US1] Build the base recommendation card with course title, fit reason, and activity list in `src/components/RecommendationCard.jsx`
-- [ ] T011 [US1] Wire preference state, required-field validation, recommendation request, and current result state in `src/App.jsx`
-- [ ] T012 [US1] Connect `QuestForm` and `RecommendationCard` into the primary page flow in `src/App.jsx`
+- [X] T009 [P] [US1] Build the fixed-choice input form and missing-field messages in `src/components/QuestForm.jsx`
+- [X] T010 [P] [US1] Build the base recommendation card with course title, fit reason, and activity list in `src/components/RecommendationCard.jsx`
+- [X] T011 [US1] Wire preference state, required-field validation, recommendation request, and current result state in `src/App.jsx`
+- [X] T012 [US1] Connect `QuestForm` and `RecommendationCard` into the primary page flow in `src/App.jsx`
 
 **Checkpoint**: User Story 1 can be demonstrated independently, but the production MVP must continue through User Story 2 because time and cost visibility is constitutional.
 
@@ -59,9 +59,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Extend the recommendation card to show total estimated time and total estimated cost in `src/components/RecommendationCard.jsx`
-- [ ] T014 [US2] Extend the recommendation card to show each activity's estimated time and estimated cost in `src/components/RecommendationCard.jsx`
-- [ ] T015 [US2] Add readable time/cost alignment, wrapping, and compact mobile styles in `src/App.css`
+- [X] T013 [US2] Extend the recommendation card to show total estimated time and total estimated cost in `src/components/RecommendationCard.jsx`
+- [X] T014 [US2] Extend the recommendation card to show each activity's estimated time and estimated cost in `src/components/RecommendationCard.jsx`
+- [X] T015 [US2] Add readable time/cost alignment, wrapping, and compact mobile styles in `src/App.css`
 
 **Checkpoint**: User Stories 1 and 2 together form the minimum constitution-compliant MVP recommendation flow.
 
@@ -75,9 +75,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T016 [P] [US3] Create the no-match empty state with `정확히 맞는 코스 없음` and time/budget guidance in `src/components/EmptyState.jsx`
-- [ ] T017 [US3] Return and render no-match outcomes without replacing a valid latest recommendation in `src/App.jsx`
-- [ ] T018 [US3] Ensure mock data supports at least one manually verifiable no-match input combination in `src/data/mockQuests.js`
+- [X] T016 [P] [US3] Create the no-match empty state with `정확히 맞는 코스 없음` and time/budget guidance in `src/components/EmptyState.jsx`
+- [X] T017 [US3] Return and render no-match outcomes without replacing a valid latest recommendation in `src/App.jsx`
+- [X] T018 [US3] Ensure mock data supports at least one manually verifiable no-match input combination in `src/data/mockQuests.js`
 
 **Checkpoint**: Empty state behavior works independently and does not break successful recommendations.
 
@@ -91,10 +91,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T019 [P] [US4] Build the recent recommendation view with selected conditions, course summary, and activity time/cost in `src/components/RecentRecommendation.jsx`
-- [ ] T020 [US4] Save only the latest successful recommendation through the storage helper in `src/App.jsx`
-- [ ] T021 [US4] Restore the latest recommendation on first render and ignore missing or malformed saved data in `src/App.jsx`
-- [ ] T022 [US4] Add responsive recent recommendation section styles in `src/App.css`
+- [X] T019 [P] [US4] Build the recent recommendation view with selected conditions, course summary, and activity time/cost in `src/components/RecentRecommendation.jsx`
+- [X] T020 [US4] Save only the latest successful recommendation through the storage helper in `src/App.jsx`
+- [X] T021 [US4] Restore the latest recommendation on first render and ignore missing or malformed saved data in `src/App.jsx`
+- [X] T022 [US4] Add responsive recent recommendation section styles in `src/App.css`
 
 **Checkpoint**: Recent recommendation persistence works in the same browser and stays latest-only.
 
@@ -104,10 +104,10 @@
 
 **Purpose**: Verify the complete local-only UI and keep the implementation beginner-readable.
 
-- [ ] T023 Review `package.json`, `src/App.jsx`, `src/lib/recommendQuest.js`, and `src/lib/storage.js` to confirm there are no unplanned runtime libraries, external API calls, login flows, or server-owned state
-- [ ] T024 Run `npm run build` and fix any build blockers in `package.json`, `src/main.jsx`, and `src/App.jsx`
-- [ ] T025 Run `npm run dev` and complete the primary recommendation, no-match, and recent recommendation browser checks from `specs/001-mini-course-recommendation/quickstart.md`
-- [ ] T026 Verify mobile `390px` and desktop `1280px` layouts and adjust responsive behavior in `src/App.css`
+- [X] T023 Review `package.json`, `src/App.jsx`, `src/lib/recommendQuest.js`, and `src/lib/storage.js` to confirm there are no unplanned runtime libraries, external API calls, login flows, or server-owned state
+- [X] T024 Run `npm run build` and fix any build blockers in `package.json`, `src/main.jsx`, and `src/App.jsx`
+- [X] T025 Run `npm run dev` and complete the primary recommendation, no-match, and recent recommendation browser checks from `specs/001-mini-course-recommendation/quickstart.md`
+- [X] T026 Verify mobile `390px` and desktop `1280px` layouts and adjust responsive behavior in `src/App.css`
 
 ---
 
