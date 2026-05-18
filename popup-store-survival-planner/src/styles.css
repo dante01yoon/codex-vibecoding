@@ -82,6 +82,12 @@ button {
   min-width: 0;
 }
 
+.result-flow {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
 .section-panel,
 .survival-card {
   border: 1px solid #e2e8f0;
@@ -211,6 +217,24 @@ button:focus-visible {
   color: #64748b;
 }
 
+.goods-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 0;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  background: #f0f9ff;
+  padding: 12px;
+  color: #0c4a6e;
+  font-weight: 800;
+}
+
+.goods-total strong {
+  color: #111827;
+  overflow-wrap: anywhere;
+}
+
 .goods-list {
   display: grid;
   gap: 12px;
@@ -231,6 +255,43 @@ button:focus-visible {
   display: grid;
   gap: 12px;
   min-width: 0;
+}
+
+.checklist {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checklist-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.checklist-item input {
+  width: 22px;
+  height: 22px;
+  accent-color: #c0265d;
+}
+
+.checklist-item label {
+  min-width: 0;
+  color: #111827;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.checklist-item:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
 }
 
 .survival-card {
@@ -269,6 +330,66 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.priority-card-section {
+  display: grid;
+  gap: 12px;
+}
+
+.priority-card-section h3 {
+  margin: 0;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.priority-goods-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.priority-goods-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 10px 12px;
+}
+
+.priority-goods-list span {
+  min-width: 0;
+  color: #111827;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.priority-goods-list strong {
+  color: #c0265d;
+  font-size: 0.9rem;
+}
+
+.card-empty-state {
+  margin: 0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #64748b;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.checklist-message {
+  margin: 0;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #047857;
+  padding: 14px;
+  font-weight: 800;
+}
+
 .wait-message {
   margin: 0;
   border-radius: 8px;
@@ -281,6 +402,51 @@ button:focus-visible {
 .wait-message.is-warning {
   background: #fef2f2;
   color: #b91c1c;
+}
+
+.storage-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.storage-panel .section-heading {
+  margin-bottom: 0;
+}
+
+.save-status {
+  margin: 0;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 800;
+}
+
+.save-status-saved {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.save-status-unavailable {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.save-status-reset {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.reset-button {
+  min-height: 48px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  padding: 10px 16px;
+  font-weight: 800;
+}
+
+.reset-button:hover {
+  background: #f8fafc;
 }
 
 @media (min-width: 768px) {

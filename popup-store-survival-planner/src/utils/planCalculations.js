@@ -12,6 +12,12 @@ export const priorityOptions = [
   { value: 'low', label: '낮음' }
 ]
 
+const priorityRank = {
+  high: 0,
+  medium: 1,
+  low: 2
+}
+
 const timeSlotLabels = {
   morning: '오전',
   afternoon: '오후',
@@ -71,4 +77,64 @@ export function createGoodsItem(name, id) {
     priority: 'medium',
     budget: ''
   }
+}
+
+export function parseGoodsBudget(budget) {
+  if (budget === '') {
+    return 0
+  }
+
+  return Number(budget)
+}
+
+export function hasGoodsBudgetError(budget) {
+  if (budget === '') {
+    return false
+  }
+
+  return Number(budget) < 0
+}
+
+export function getGoodsBudgetTotal(goodsItems) {
+  return goodsItems.reduce((total, item) => total + parseGoodsBudget(item.budget), 0)
+}
+
+export function getPriorityGoodsForCard(goodsItems) {
+  return goodsItems
+    .map((item, originalIndex) => ({
+      ...item,
+      name: item.name.trim(),
+      originalIndex
+    }))
+    .filter((item) => item.name)
+    .sort((left, right) => {
+      const leftRank = priorityRank[left.priority] ?? 3
+      const rightRank = priorityRank[right.priority] ?? 3
+      const priorityDifference = leftRank - rightRank
+
+      return priorityDifference || left.originalIndex - right.originalIndex
+    })
+    .slice(0, 3)
+    .map(({ originalIndex, ...item }) => item)
+}
+
+export function getChecklistProgress(checklistItems) {
+  const checkedCount = checklistItems.filter((item) => item.checked).length
+  const totalCount = checklistItems.length
+
+  return {
+    checkedCount,
+    totalCount,
+    label: `${checkedCount}/${totalCount} 준비됨`
+  }
+}
+
+export function getChecklistReadyMessage(checklistItems) {
+  const { checkedCount, totalCount } = getChecklistProgress(checklistItems)
+
+  if (totalCount > 0 && checkedCount === totalCount) {
+    return '준비 완료! 현장에서 바로 확인하면 돼요.'
+  }
+
+  return '아직 준비할 항목이 남아 있어요.'
 }
