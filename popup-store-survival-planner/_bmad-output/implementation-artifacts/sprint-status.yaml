@@ -1,0 +1,52 @@
+# generated: 2026-05-18T13:30:46+09:00
+# project: popup-store-survival-planner
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: /Users/dante/Desktop/codex-vibecoding/popup-store-survival-planner/_bmad-output/implementation-artifacts
+#
+# STATUS DEFINITIONS:
+#   Epic: backlog | in-progress | done
+#   Story: backlog | ready-for-dev | in-progress | review | done
+#   Retrospective: optional | done
+#
+# DEVELOPMENT NOTES:
+# - Epics 1-4 are the first teaching MVP.
+# - Epic 5 is optional follow-up work and is not required for the first MVP.
+# - Login, server, map API, payment, real-time inventory, and SNS sharing stay out of scope.
+# - 2026-05-18 cleanup: Story 1.1 scaffold/shell work and Story 1.3 wait-message work were absorbed by Story 1.2 implementation.
+
+generated: "2026-05-18T13:30:46+09:00"
+last_updated: "2026-05-18T14:29:57+09:00"
+project: popup-store-survival-planner
+project_key: NOKEY
+tracking_system: file-system
+story_location: /Users/dante/Desktop/codex-vibecoding/popup-store-survival-planner/_bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: done
+  1-1-react-vite-app-shell: done
+  1-2-visit-date-time-input: done
+  1-3-wait-time-message: done
+  epic-1-retrospective: optional
+
+  epic-2: in-progress
+  2-1-goods-item-list: done
+  2-2-goods-budget-total: backlog
+  2-3-goods-priority-card: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-default-checklist: backlog
+  3-2-checklist-progress-message: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-localstorage-save-restore: backlog
+  4-2-storage-status-reset: backlog
+  4-3-mobile-accessibility: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-custom-checklist-items: backlog
+  5-2-visit-note: backlog
+  epic-5-retrospective: optional
