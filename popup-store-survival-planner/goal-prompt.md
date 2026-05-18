@@ -1,5 +1,5 @@
 /goal
-_bmad-output/epics.md에서 다음 승인된 스토리를 하나씩 가져와 구현하고, 필요한 검사를 실행한 뒤, BMAD 스타일 리뷰를 수행하는 과정을 반복하여 Pop-up Store Survival Planner의 Epic 2를 완료한다.
+sprint-status.yaml, _bmad-output/epics.md에서 다음 승인된 스토리를 하나씩 가져와 구현하고, 필요한 검사를 실행한 뒤, BMAD 스타일 리뷰를 수행하는 과정을 반복하여 Pop-up Store Survival Planner의 Epic 2를 완료한다.
 
 성공 여부는 다음으로 검증한다:
 - 모든 Epic 2 스토리의 인수 조건이 통과함
