@@ -488,6 +488,7 @@ function App() {
                   isCommentsLoading={
                     expandedPostId === post.id && commentStatus === 'loading'
                   }
+                  isLiveMode={isLiveMode}
                   commentThreadError={
                     expandedPostId === post.id ? commentThreadError : ''
                   }
@@ -909,6 +910,7 @@ function PostCard({
   comments,
   currentAuthorId,
   isCommentsLoading,
+  isLiveMode,
   commentThreadError,
   onToggle,
   onDeletePost,
@@ -973,6 +975,7 @@ function PostCard({
           comments={comments}
           currentAuthorId={currentAuthorId}
           isLoading={isCommentsLoading}
+          isLiveMode={isLiveMode}
           threadError={commentThreadError}
           onAddComment={onAddComment}
           onDeleteComment={onDeleteComment}
@@ -1020,6 +1023,7 @@ function CommentsThread({
   comments,
   currentAuthorId,
   isLoading,
+  isLiveMode,
   threadError,
   onAddComment,
   onDeleteComment,
@@ -1028,6 +1032,11 @@ function CommentsThread({
   const [mood, setMood] = useState('happy')
   const [error, setError] = useState('')
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
+  const trimmedMessage = message.trim()
+  const isSubmitDisabled = isSubmittingComment || trimmedMessage.length === 0
+  const messageInputId = `comment-${postId}`
+  const errorId = `comment-error-${postId}`
+  const hintId = `comment-hint-${postId}`
 
   async function submitComment(event) {
     event.preventDefault()
@@ -1043,7 +1052,7 @@ function CommentsThread({
     try {
       await onAddComment(postId, {
         mood,
-        message: message.trim(),
+        message: trimmedMessage,
       })
       setMessage('')
       setError('')
@@ -1057,17 +1066,40 @@ function CommentsThread({
   }
 
   return (
-    <div className="comments-thread">
-      <div className="thread-status">
-        <Wifi size={15} aria-hidden="true" />
-        펼쳐진 댓글 구독 중
+    <div className="comments-thread" aria-label="댓글 영역">
+      <div className="thread-heading">
+        <div>
+          <p className="thread-kicker">답장</p>
+          <h4>댓글 {comments.length}개</h4>
+        </div>
+        <span className="thread-status">
+          {isLiveMode ? (
+            <Wifi size={15} aria-hidden="true" />
+          ) : (
+            <MessageCircle size={15} aria-hidden="true" />
+          )}
+          {isLiveMode ? '펼친 동안 실시간' : '샘플 댓글'}
+        </span>
       </div>
 
-      <div className="comment-list">
+      {threadError && (
+        <p className="thread-alert" id={`thread-alert-${postId}`} role="status">
+          {threadError}
+        </p>
+      )}
+
+      <div className="comment-list" aria-live="polite">
         {isLoading ? (
-          <p className="empty-comment">댓글을 불러오는 중이에요.</p>
+          <div className="comment-loading" role="status">
+            <span />
+            <span />
+            <p>댓글을 불러오는 중이에요.</p>
+          </div>
         ) : comments.length === 0 ? (
-          <p className="empty-comment">아직 댓글이 없어요. 첫 답장을 남겨 주세요.</p>
+          <div className="empty-comment">
+            <MessageCircle size={17} aria-hidden="true" />
+            <p>아직 댓글이 없어요. 첫 답장을 남겨 주세요.</p>
+          </div>
         ) : (
           comments.map((comment) => {
             const moodLabel =
@@ -1076,13 +1108,15 @@ function CommentsThread({
 
             return (
               <div className="comment-bubble" key={comment.id}>
-                <div>
-                  <strong>{comment.displayName}</strong>
-                  <span>
-                    {moodLabel} · {comment.createdLabel}
-                  </span>
+                <div className="comment-bubble-main">
+                  <div className="comment-bubble-heading">
+                    <strong>{comment.displayName}</strong>
+                    <span>
+                      {moodLabel} · {comment.createdLabel}
+                    </span>
+                  </div>
+                  <p>{comment.message}</p>
                 </div>
-                <p>{comment.message}</p>
                 {isMine && (
                   <button
                     className="icon-button comment-delete"
@@ -1101,35 +1135,30 @@ function CommentsThread({
       </div>
 
       <form className="comment-form" onSubmit={submitComment}>
-        <label className="sr-only" htmlFor={`comment-${postId}`}>
-          댓글 메시지
-        </label>
+        <div className="comment-composer-head">
+          <label htmlFor={messageInputId}>댓글 남기기</label>
+          <span id={hintId}>{message.length}/240</span>
+        </div>
         <input
-          id={`comment-${postId}`}
+          id={messageInputId}
           type="text"
           value={message}
-          onChange={(event) => setMessage(event.target.value)}
+          onChange={(event) => {
+            setMessage(event.target.value)
+            if (error) setError('')
+          }}
           maxLength={240}
           placeholder="짧게 답장 남기기"
           disabled={isSubmittingComment}
+          aria-describedby={error ? `${hintId} ${errorId}` : hintId}
+          aria-invalid={error ? 'true' : 'false'}
         />
-        <select
-          value={mood}
-          onChange={(event) => setMood(event.target.value)}
-          disabled={isSubmittingComment}
-          aria-label="댓글 무드"
-        >
-          {MOODS.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </select>
         <button
           type="submit"
           className="icon-button send-comment"
-          disabled={isSubmittingComment}
+          disabled={isSubmitDisabled}
           aria-label="댓글 등록"
+          title="댓글 등록"
         >
           {isSubmittingComment ? (
             <Loader2 className="spin" size={16} aria-hidden="true" />
@@ -1137,15 +1166,30 @@ function CommentsThread({
             <Send size={16} aria-hidden="true" />
           )}
         </button>
+        <fieldset className="comment-mood-group">
+          <legend>댓글 무드</legend>
+          {MOODS.map((item) => (
+            <button
+              key={item.id}
+              className="choice-chip"
+              type="button"
+              data-selected={mood === item.id}
+              disabled={isSubmittingComment}
+              onClick={() => {
+                setMood(item.id)
+                if (error) setError('')
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </fieldset>
       </form>
-      <div className="comment-meta-row">
-        <span>{message.length}/240</span>
-        {(error || threadError) && (
-          <p className="field-error" role="alert">
-            {error || threadError}
-          </p>
-        )}
-      </div>
+      {error && (
+        <p className="field-error" id={errorId} role="alert">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

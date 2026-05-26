@@ -624,19 +624,68 @@ canvas:focus-visible {
   padding-top: 14px;
 }
 
+.thread-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.thread-heading h4,
+.thread-kicker {
+  margin: 0;
+}
+
+.thread-heading h4 {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.thread-kicker {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.thread-alert {
+  margin: 0;
+  border: 1px solid rgba(15, 159, 143, 0.24);
+  border-radius: 10px;
+  padding: 9px 11px;
+  color: #0f766e;
+  background: rgba(233, 251, 246, 0.78);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .comment-list {
   display: grid;
   gap: 10px;
 }
 
 .comment-bubble {
-  position: relative;
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   border: 1px solid rgba(31, 41, 51, 0.08);
-  border-radius: 10px;
-  padding: 10px 42px 10px 12px;
-  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 11px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.comment-bubble-main {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 5px;
+  min-width: 0;
+}
+
+.comment-bubble-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
 }
 
 .comment-bubble strong {
@@ -644,8 +693,7 @@ canvas:focus-visible {
   font-size: 13px;
 }
 
-.comment-bubble p,
-.empty-comment {
+.comment-bubble p {
   overflow-wrap: anywhere;
   margin: 0;
   font-size: 13px;
@@ -653,30 +701,124 @@ canvas:focus-visible {
 }
 
 .empty-comment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px dashed rgba(31, 41, 51, 0.16);
+  border-radius: 12px;
+  padding: 12px;
   color: var(--muted);
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.empty-comment p {
+  overflow-wrap: anywhere;
+  margin: 0;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1.45;
 }
 
 .comment-delete {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 30px;
-  height: 30px;
-  background: rgba(255, 255, 255, 0.72);
+  width: 34px;
+  height: 34px;
+  color: #a94235;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.comment-loading {
+  display: grid;
+  gap: 8px;
+  border: 1px dashed rgba(31, 41, 51, 0.14);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.44);
+}
+
+.comment-loading span {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.comment-loading span:first-child {
+  width: 62%;
+}
+
+.comment-loading span:nth-child(2) {
+  width: 86%;
+}
+
+.comment-loading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .comment-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 108px 40px;
+  grid-template-columns: minmax(0, 1fr) 44px;
   gap: 8px;
+  border: 1px solid rgba(31, 41, 51, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.comment-composer-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comment-composer-head label,
+.comment-mood-group legend {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.comment-composer-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.comment-mood-group {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.comment-mood-group legend {
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.comment-mood-group .choice-chip {
+  min-height: 34px;
+  padding: 7px 10px;
 }
 
 .send-comment {
-  width: 40px;
+  width: 44px;
   height: 44px;
   color: #ffffff;
   background: var(--primary);
+}
+
+.send-comment:disabled {
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(249, 115, 91, 0.5);
 }
 
 .comment-meta-row {
@@ -819,17 +961,12 @@ canvas:focus-visible {
   }
 
   .comment-form {
-    grid-template-columns: minmax(0, 1fr) 40px;
-  }
-
-  .comment-form select {
-    grid-column: 1 / -1;
-    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr) 44px;
   }
 
   .send-comment {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 2;
   }
 }
 

@@ -1,5 +1,17 @@
 # Verification Log
 
+## 2026-05-17
+
+- 통과: `npm install`로 worktree 의존성 설치 후 `npm run build`
+- 통과: `git diff --check`
+- 통과: `npx @google/design.md lint DESIGN.md`
+- 통과: `npx playwright install chromium`
+- 통과: `npm run dev -- --host 127.0.0.1 --port 5177`로 로컬 UI 확인 후 서버 중지
+- 통과: `npx playwright screenshot --browser=chromium --viewport-size=1280,1100 --wait-for-timeout=1200 --full-page http://127.0.0.1:5177/ .playwright-mcp/comments-ux-desktop-ready.png`
+- 통과: `npx playwright screenshot --browser=chromium --viewport-size=390,844 --wait-for-timeout=1200 --full-page http://127.0.0.1:5177/ .playwright-mcp/comments-ux-mobile-ready.png`
+- 확인: 데스크톱과 390px 모바일 샘플 모드 화면에서 펼쳐진 댓글 작성기와 무드 chip이 가로로 넘치지 않음
+- 미실행: hosted Supabase 댓글 Realtime 2브라우저 검증은 이번 UX 작업 범위에서 수행하지 않음
+
 ## 2026-05-12
 
 - 통과: `npm run video:still`로 Remotion 중간 프레임 `output/video/realtime-guestbook-promo-frame.png` 생성

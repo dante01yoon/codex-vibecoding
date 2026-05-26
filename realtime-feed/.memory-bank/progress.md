@@ -35,6 +35,7 @@
 - public Vercel UI에서 작성 후 삭제 버튼 동작을 확인했다.
 - Realtime Guestbook 홍보 영상을 Remotion으로 제작했다.
 - 생성 이미지 3장을 `img/`와 `public/img/`에 보관하고, 최종 MP4를 `output/video/realtime-guestbook-promo.mp4`로 렌더했다.
+- 댓글 영역 UX를 보강했다. 펼쳐진 댓글 헤더/상태/개수, 로딩/빈 상태, 말풍선 삭제 affordance, 댓글 작성기 글자 수/무드 chip/빈 입력 비활성화를 추가했다.
 
 ## in progress
 
