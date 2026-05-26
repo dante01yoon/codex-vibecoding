@@ -128,3 +128,9 @@
 - Supabase Dashboard RLS Tester는 아직 수동 확인하지 못했다.
 - Vercel project env에는 아직 값이 저장되어 있지 않다. 이번 preview deployment는 일회성 build env 주입으로 만들었다.
 - DB password가 대화/IDE 컨텍스트에 노출되었으므로 작업 종료 후 rotate가 필요하다.
+
+## 2026-05-16 - 랜딩 섹션
+
+- pass: `npx @google/design.md lint DESIGN.md` → findings 0, errors 0, warnings 0.
+- pass: `npm run build` → Vite production build 성공.
+- warning: `npx --yes playwright@latest install chromium` → Playwright Chromium 다운로드가 CDN 403(`Domain forbidden`)으로 실패해 스크린샷 확인 불가.
