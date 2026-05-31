@@ -4,6 +4,8 @@
 
 샘플 데이터 기반 첫 UI 셸 위에 Supabase 연동 경계를 붙였다. 현재 앱은 환경 변수가 없으면 샘플 모드로 실행되고, `VITE_SUPABASE_URL`과 공개 가능한 publishable/anon key가 있으면 익명 세션, 게시글/댓글 Data API, Storage 첨부, Realtime 구독을 사용한다.
 
+2026-05-17에는 이미지 첨부와 간단한 그림 첨부 UI 사용성을 보강했다. 첨부 모드 선택은 현재 상태 pill을 보여주고, 이미지 모드는 파일 선택/변경/제거와 미리보기 상태를 더 분명하게 표시한다. 그림 모드는 활성 펜/지우개 상태, 첨부 제거, 초기화, 캔버스 경계와 pointer capture 처리를 보강했다.
+
 ## 작업 기준
 
 - `AGENTS.md`, `DESIGN.md`, PRD 스펙을 먼저 읽었다.

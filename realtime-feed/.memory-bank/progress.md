@@ -35,6 +35,7 @@
 - public Vercel UI에서 작성 후 삭제 버튼 동작을 확인했다.
 - Realtime Guestbook 홍보 영상을 Remotion으로 제작했다.
 - 생성 이미지 3장을 `img/`와 `public/img/`에 보관하고, 최종 MP4를 `output/video/realtime-guestbook-promo.mp4`로 렌더했다.
+- 이미지 첨부와 간단한 그림 첨부 UI를 보강했다. 첨부 상태 pill, 이미지 파일명/변경/제거, 그림 활성 도구 상태, 첨부 제거, 캔버스 경계와 모바일 overflow 확인을 추가했다.
 
 ## in progress
 
@@ -46,7 +47,7 @@
 
 ## next
 
-- 브라우저 2개로 첨부와 펼쳐진 댓글 Realtime을 추가 수동 검증한다.
+- 브라우저 2개로 실제 Supabase 이미지/그림 첨부 업로드와 펼쳐진 댓글 Realtime을 추가 수동 검증한다.
 - 홍보 영상에 배경음악, 나레이션, 자막 파일이 필요하면 후속으로 추가한다.
 - Vercel Git integration과 preview env 저장이 필요하면 Dashboard에서 repo root를 `realtime-feed`로 연결하거나 별도 CLI/API 작업으로 설정한다.
 - 첫 CLI deploy가 production target으로 만들어진 alias를 유지할지 정리할지 확인한다.
